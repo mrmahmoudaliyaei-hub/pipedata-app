@@ -1,64 +1,102 @@
 import 'dart:math' as math;
 
-enum ComponentCategory { pipe, flange, buttWeld, socketWeld, threaded }
+enum ComponentCategory { pipe, flange, buttWeld, socketWeld, threaded, reducer, gasket, valve }
 
-enum MaterialGrade { a106B, a312Tp316L }
+enum MaterialGrade { a106B, a312Tp316L, a333Gr6 }
 
-class PipingEngine {
-  // محاسبه فشار مجاز کارکرد لوله بر اساس ASME B31.3 (فرمول بند 304.1.2)
-  // P = (2 * S * E * W * t_min) / (D - 2 * Y * t_min)
-  static Map<String, double> calculatePipePressure({
-    required double od, // mm
-    required double nominalThk, // mm
+class PressureCalculationResult {
+  final double mawpBar;
+  final double mawpPsi;
+  final double hydroTestBar;
+  final double hydroTestPsi;
+  final double netTMin;
+  final double allowableStressMpa;
+
+  const PressureCalculationResult({
+    required this.mawpBar,
+    required this.mawpPsi,
+    required this.hydroTestBar,
+    required this.hydroTestPsi,
+    required this.netTMin,
+    required this.allowableStressMpa,
+  });
+}
+
+class PipingStressEngine {
+  /// ASME B31.3 Section 304.1.2 Internal Design Pressure Equation:
+  /// P = (2 * S * E * W * t) / (D - 2 * Y * t)
+  /// t = nominalThk * (1 - millTolerance) - corrosionAllowance
+  static PressureCalculationResult calculatePipeMAWP({
+    required double outerDiameterMm,
+    required double nominalWallThkMm,
     required MaterialGrade material,
-    double designTempC = 38.0, // °C
-    double corrosionAllowance = 1.5, // mm
+    double designTempC = 38.0,
+    double corrosionAllowanceMm = 1.5,
+    double millToleranceRatio = 0.125, // 12.5% ASTM standard manufacturing tolerance
+    double weldJointEfficiency = 1.0,  // Seamless (E = 1.00)
   }) {
-    // تنش مجاز S (MPa) در دمای محیط (ASME B31.3 Table A-1)
-    double sMpa = (material == MaterialGrade.a106B) ? 138.0 : 115.0;
-    if (designTempC > 100) sMpa *= 0.95;
-    if (designTempC > 200) sMpa *= 0.88;
-    if (designTempC > 300) sMpa *= 0.78;
+    // S: Basic Allowable Stress in MPa (ASME B31.3 Table A-1)
+    double sMpa;
+    switch (material) {
+      case MaterialGrade.a106B:
+        sMpa = 138.0;
+        if (designTempC > 93) sMpa = 138.0 - ((designTempC - 93) * 0.05);
+        if (designTempC > 200) sMpa = 120.0;
+        if (designTempC > 300) sMpa = 105.0;
+        break;
+      case MaterialGrade.a312Tp316L:
+        sMpa = 115.0;
+        if (designTempC > 100) sMpa = 102.0;
+        if (designTempC > 200) sMpa = 91.0;
+        if (designTempC > 300) sMpa = 82.0;
+        break;
+      case MaterialGrade.a333Gr6:
+        sMpa = 138.0;
+        break;
+    }
 
-    const double eFactor = 1.0; // لوله مانیسمان بدون درز
-    const double wFactor = 1.0;
-    const double yFactor = 0.4; // فریتیک/آستنیتیک زیر 482 درجه
+    const double yFactor = 0.4; // Valid for ferritic/austenitic below 482 C
+    const double wFactor = 1.0; // Weld strength reduction factor (1.0 for temp < 510 C)
 
-    // احتساب تلورانس منفی 12.5% کارخانه و کاهش ناشی از خوردگی
-    double tMin = (nominalThk * 0.875) - corrosionAllowance;
-    if (tMin <= 0.1) tMin = 0.1;
+    // Structural wall thickness available
+    double tNet = (nominalWallThkMm * (1.0 - millToleranceRatio)) - corrosionAllowanceMm;
+    if (tNet < 0.2) tNet = 0.2;
 
-    double pMpa = (2 * sMpa * eFactor * wFactor * tMin) / (od - (2 * yFactor * tMin));
+    double pMpa = (2 * sMpa * weldJointEfficiency * wFactor * tNet) /
+        (outerDiameterMm - (2 * yFactor * tNet));
     if (pMpa < 0) pMpa = 0;
 
     double pBar = pMpa * 10.0;
-    double pPsi = pBar * 14.5038;
-    double hydroTestBar = pBar * 1.5; // تست هیدرواستاتیک بند 345.4.2
+    double pPsi = pBar * 14.50377;
+    double hydroBar = pBar * 1.5; // ASME B31.3 Para 345.4.2 Hydrostatic Test: 1.5 * Design Pressure
+    double hydroPsi = hydroBar * 14.50377;
 
-    return {
-      'mawpBar': double.parse(pBar.toStringAsFixed(1)),
-      'mawpPsi': double.parse(pPsi.toStringAsFixed(0)),
-      'hydroTestBar': double.parse(hydroTestBar.toStringAsFixed(1)),
-      'tMin': double.parse(tMin.toStringAsFixed(2)),
-    };
+    return PressureCalculationResult(
+      mawpBar: double.parse(pBar.toStringAsFixed(1)),
+      mawpPsi: double.parse(pPsi.toStringAsFixed(0)),
+      hydroTestBar: double.parse(hydroBar.toStringAsFixed(1)),
+      hydroTestPsi: double.parse(hydroPsi.toStringAsFixed(0)),
+      netTMin: double.parse(tNet.toStringAsFixed(2)),
+      allowableStressMpa: double.parse(sMpa.toStringAsFixed(1)),
+    );
   }
 
-  // داده‌های فشار-دما فلنج‌ها بر اساس ASME B16.5 Table 2-1.1 (Group 1.1 A105)
-  static Map<String, dynamic> getFlangeRating(String ratingClass, MaterialGrade mat) {
-    final Map<String, Map<String, double>> ratingsA105 = {
-      'Class 150': {'ambient': 19.6, 't100': 17.7, 't200': 13.8, 't300': 10.2, 't400': 6.5, 'hydro': 29.5},
-      'Class 300': {'ambient': 51.1, 't100': 46.6, 't200': 43.8, 't300': 39.8, 't400': 34.7, 'hydro': 77.0},
-      'Class 600': {'ambient': 102.1, 't100': 93.2, 't200': 87.6, 't300': 79.7, 't400': 69.4, 'hydro': 153.5},
-      'Class 900': {'ambient': 153.2, 't100': 139.8, 't200': 131.4, 't300': 119.5, 't400': 104.2, 'hydro': 230.0},
-      'Class 1500': {'ambient': 255.3, 't100': 233.0, 't200': 219.0, 't300': 199.2, 't400': 173.6, 'hydro': 383.5},
-      'Class 2500': {'ambient': 425.5, 't100': 388.3, 't200': 364.9, 't300': 331.9, 't400': 289.4, 'hydro': 638.5},
+  /// ASME B16.5 Table 2-1.1 Pressure-Temperature Containment Ratings (Group 1.1 - Carbon Steel A105)
+  static Map<String, dynamic> getFlangePressureContainment(String ratingClass) {
+    final Map<String, Map<String, double>> ratings = {
+      'Class 150': {'ambient': 19.6, 't100': 17.7, 't200': 13.8, 't300': 10.2, 't400': 6.5, 'hydroShell': 29.5},
+      'Class 300': {'ambient': 51.1, 't100': 46.6, 't200': 43.8, 't300': 39.8, 't400': 34.7, 'hydroShell': 77.0},
+      'Class 600': {'ambient': 102.1, 't100': 93.2, 't200': 87.6, 't300': 79.7, 't400': 69.4, 'hydroShell': 153.5},
+      'Class 900': {'ambient': 153.2, 't100': 139.8, 't200': 131.4, 't300': 119.5, 't400': 104.2, 'hydroShell': 230.0},
+      'Class 1500': {'ambient': 255.3, 't100': 233.0, 't200': 219.0, 't300': 199.2, 't400': 173.6, 'hydroShell': 383.5},
+      'Class 2500': {'ambient': 425.5, 't100': 388.3, 't200': 364.9, 't300': 331.9, 't400': 289.4, 'hydroShell': 638.5},
     };
-    return ratingsA105[ratingClass] ?? ratingsA105['Class 150']!;
+    return ratings[ratingClass] ?? ratings['Class 150']!;
   }
 }
 
-class FullPipingDataset {
-  // کاتالوگ جامع لوله‌ها (1/2" تا 24")
+class PipingMasterCatalog {
+  // Complete ASME B36.10M / B36.19M Pipes Dataset (NPS 1/2" up to NPS 24")
   static final List<Map<String, dynamic>> pipes = [
     {
       'nps': '1/2"', 'dn': 15, 'od': 21.34,
@@ -197,7 +235,7 @@ class FullPipingDataset {
     },
   ];
 
-  // کاتالوگ فلنج‌ها (ASME B16.5 WNRF) به همراه کلاس، PCD، بولتینگ و گشتاور بستن
+  // ASME B16.5 Weld Neck Raised Face (WNRF) Flanges
   static final List<Map<String, dynamic>> flanges = [
     {
       'nps': '1/2"', 'dn': 15,
@@ -262,7 +300,7 @@ class FullPipingDataset {
     },
   ];
 
-  // اتصالات لب به لب جوشی (ASME B16.9 Butt-Weld Fittings)
+  // ASME B16.9 Butt-Weld Fittings
   static final List<Map<String, dynamic>> buttWelds = [
     {'nps': '1/2"', 'dn': 15, 'lrElbow90': 38.0, 'srElbow90': 25.4, 'elbow45': 16.0, 'teeCtoE': 25.0, 'redLen': 38.0, 'capLen': 25.0},
     {'nps': '3/4"', 'dn': 20, 'lrElbow90': 38.0, 'srElbow90': 25.4, 'elbow45': 19.0, 'teeCtoE': 29.0, 'redLen': 38.0, 'capLen': 25.0},
@@ -277,23 +315,164 @@ class FullPipingDataset {
     {'nps': '12"', 'dn': 300, 'lrElbow90': 457.0, 'srElbow90': 305.0, 'elbow45': 190.0, 'teeCtoE': 254.0, 'redLen': 203.0, 'capLen': 152.0},
   ];
 
-  // اتصالات سوکت جوش فورج شده (ASME B16.11 Socket-Weld Class 3000 / 6000)
+  // ASME B16.11 Forged Socket-Weld Class 3000 / 6000
   static final List<Map<String, dynamic>> socketWelds = [
-    {'nps': '1/2"', 'dn': 15, 'boreDia': 21.8, 'depth': 9.5, 'cToE': 24.5, 'minWall': 4.67, 'gap': 1.6, 'equivSch': 'Sch 80 / 160'},
-    {'nps': '3/4"', 'dn': 20, 'boreDia': 27.2, 'depth': 12.5, 'cToE': 28.5, 'minWall': 4.90, 'gap': 1.6, 'equivSch': 'Sch 80 / 160'},
-    {'nps': '1"', 'dn': 25, 'boreDia': 33.9, 'depth': 12.5, 'cToE': 34.0, 'minWall': 5.69, 'gap': 1.6, 'equivSch': 'Sch 80 / 160'},
-    {'nps': '1-1/2"', 'dn': 40, 'boreDia': 48.8, 'depth': 12.5, 'cToE': 43.5, 'minWall': 6.35, 'gap': 1.6, 'equivSch': 'Sch 80 / 160'},
-    {'nps': '2"', 'dn': 50, 'boreDia': 61.2, 'depth': 16.0, 'cToE': 47.5, 'minWall': 6.93, 'gap': 1.6, 'equivSch': 'Sch 80 / 160'},
-    {'nps': '3"', 'dn': 80, 'boreDia': 89.8, 'depth': 16.0, 'cToE': 78.0, 'minWall': 8.76, 'gap': 1.6, 'equivSch': 'Sch 80 / 160'},
+    {'nps': '1/2"', 'dn': 15, 'boreDia': 21.8, 'depth': 9.5, 'cToE': 24.5, 'minWall': 4.67, 'gap': 1.6},
+    {'nps': '3/4"', 'dn': 20, 'boreDia': 27.2, 'depth': 12.5, 'cToE': 28.5, 'minWall': 4.90, 'gap': 1.6},
+    {'nps': '1"', 'dn': 25, 'boreDia': 33.9, 'depth': 12.5, 'cToE': 34.0, 'minWall': 5.69, 'gap': 1.6},
+    {'nps': '1-1/2"', 'dn': 40, 'boreDia': 48.8, 'depth': 12.5, 'cToE': 43.5, 'minWall': 6.35, 'gap': 1.6},
+    {'nps': '2"', 'dn': 50, 'boreDia': 61.2, 'depth': 16.0, 'cToE': 47.5, 'minWall': 6.93, 'gap': 1.6},
+    {'nps': '3"', 'dn': 80, 'boreDia': 89.8, 'depth': 16.0, 'cToE': 78.0, 'minWall': 8.76, 'gap': 1.6},
   ];
 
-  // اتصالات رزوه‌ای فورج شده (ASME B16.11 / B1.20.1 NPT Threaded Class 3000)
+  // ASME B16.11 / NPT Forged Threaded Class 3000
   static final List<Map<String, dynamic>> threadeds = [
-    {'nps': '1/2"', 'dn': 15, 'cToE': 25.0, 'minThreadL2': 13.5, 'tpi': 14, 'pitch': 1.814, 'taper': '1 in 16 (0.75 in/ft)'},
-    {'nps': '3/4"', 'dn': 20, 'cToE': 28.5, 'minThreadL2': 14.0, 'tpi': 14, 'pitch': 1.814, 'taper': '1 in 16 (0.75 in/ft)'},
-    {'nps': '1"', 'dn': 25, 'cToE': 34.0, 'minThreadL2': 17.5, 'tpi': 11.5, 'pitch': 2.209, 'taper': '1 in 16 (0.75 in/ft)'},
-    {'nps': '1-1/2"', 'dn': 40, 'cToE': 43.5, 'minThreadL2': 18.5, 'tpi': 11.5, 'pitch': 2.209, 'taper': '1 in 16 (0.75 in/ft)'},
-    {'nps': '2"', 'dn': 50, 'cToE': 52.5, 'minThreadL2': 19.5, 'tpi': 11.5, 'pitch': 2.209, 'taper': '1 in 16 (0.75 in/ft)'},
-    {'nps': '3"', 'dn': 80, 'cToE': 78.0, 'minThreadL2': 26.5, 'tpi': 8, 'pitch': 3.175, 'taper': '1 in 16 (0.75 in/ft)'},
+    {'nps': '1/2"', 'dn': 15, 'cToE': 25.0, 'minThreadL2': 13.5, 'tpi': 14, 'pitch': 1.814, 'taper': '1:16'},
+    {'nps': '3/4"', 'dn': 20, 'cToE': 28.5, 'minThreadL2': 14.0, 'tpi': 14, 'pitch': 1.814, 'taper': '1:16'},
+    {'nps': '1"', 'dn': 25, 'cToE': 34.0, 'minThreadL2': 17.5, 'tpi': 11.5, 'pitch': 2.209, 'taper': '1:16'},
+    {'nps': '1-1/2"', 'dn': 40, 'cToE': 43.5, 'minThreadL2': 18.5, 'tpi': 11.5, 'pitch': 2.209, 'taper': '1:16'},
+    {'nps': '2"', 'dn': 50, 'cToE': 52.5, 'minThreadL2': 19.5, 'tpi': 11.5, 'pitch': 2.209, 'taper': '1:16'},
+    {'nps': '3"', 'dn': 80, 'cToE': 78.0, 'minThreadL2': 26.5, 'tpi': 8, 'pitch': 3.175, 'taper': '1:16'},
+  ];
+
+  // ASME B16.9 Concentric & Eccentric Reducers - Center-to-End Length (H)
+  // H is identical for concentric and eccentric patterns at a given large-NPS x small-NPS pair.
+  static final List<Map<String, dynamic>> reducers = [
+    {'nps': '3/4" x 1/2"', 'largeDn': 20, 'smallDn': 15, 'lengths': {'Concentric': 38.0, 'Eccentric': 38.0}},
+    {'nps': '1" x 3/4"', 'largeDn': 25, 'smallDn': 20, 'lengths': {'Concentric': 51.0, 'Eccentric': 51.0}},
+    {'nps': '1-1/2" x 1"', 'largeDn': 40, 'smallDn': 25, 'lengths': {'Concentric': 64.0, 'Eccentric': 64.0}},
+    {'nps': '2" x 1-1/2"', 'largeDn': 50, 'smallDn': 40, 'lengths': {'Concentric': 76.0, 'Eccentric': 76.0}},
+    {'nps': '3" x 2"', 'largeDn': 80, 'smallDn': 50, 'lengths': {'Concentric': 89.0, 'Eccentric': 89.0}},
+    {'nps': '4" x 3"', 'largeDn': 100, 'smallDn': 80, 'lengths': {'Concentric': 102.0, 'Eccentric': 102.0}},
+    {'nps': '6" x 4"', 'largeDn': 150, 'smallDn': 100, 'lengths': {'Concentric': 140.0, 'Eccentric': 140.0}},
+    {'nps': '8" x 6"', 'largeDn': 200, 'smallDn': 150, 'lengths': {'Concentric': 152.0, 'Eccentric': 152.0}},
+    {'nps': '10" x 8"', 'largeDn': 250, 'smallDn': 200, 'lengths': {'Concentric': 178.0, 'Eccentric': 178.0}},
+    {'nps': '12" x 10"', 'largeDn': 300, 'smallDn': 250, 'lengths': {'Concentric': 203.0, 'Eccentric': 203.0}},
+    {'nps': '16" x 12"', 'largeDn': 400, 'smallDn': 300, 'lengths': {'Concentric': 356.0, 'Eccentric': 356.0}},
+    {'nps': '20" x 16"', 'largeDn': 500, 'smallDn': 400, 'lengths': {'Concentric': 508.0, 'Eccentric': 508.0}},
+    {'nps': '24" x 20"', 'largeDn': 600, 'smallDn': 500, 'lengths': {'Concentric': 508.0, 'Eccentric': 508.0}},
+  ];
+
+  // ASME B16.20 Spiral Wound Gaskets (CG style, no inner ring) - sealing-element ID/OD by Class
+  static final List<Map<String, dynamic>> gaskets = [
+    {
+      'nps': '1/2"', 'dn': 15,
+      'classes': {
+        'Class 150': {'id': 19.1, 'od': 31.8, 'thk': 3.2},
+        'Class 300': {'id': 19.1, 'od': 31.8, 'thk': 3.2},
+        'Class 600': {'id': 19.1, 'od': 31.8, 'thk': 3.2},
+        'Class 900': {'id': 19.1, 'od': 31.8, 'thk': 3.2},
+        'Class 1500': {'id': 19.1, 'od': 31.8, 'thk': 3.2},
+        'Class 2500': {'id': 19.1, 'od': 31.8, 'thk': 3.2},
+      }
+    },
+    {
+      'nps': '1"', 'dn': 25,
+      'classes': {
+        'Class 150': {'id': 31.8, 'od': 47.8, 'thk': 3.2},
+        'Class 300': {'id': 31.8, 'od': 47.8, 'thk': 3.2},
+        'Class 600': {'id': 31.8, 'od': 47.8, 'thk': 3.2},
+        'Class 900': {'id': 31.8, 'od': 47.8, 'thk': 3.2},
+        'Class 1500': {'id': 31.8, 'od': 47.8, 'thk': 3.2},
+        'Class 2500': {'id': 31.8, 'od': 47.8, 'thk': 3.2},
+      }
+    },
+    {
+      'nps': '2"', 'dn': 50,
+      'classes': {
+        'Class 150': {'id': 69.9, 'od': 85.9, 'thk': 3.2},
+        'Class 300': {'id': 69.9, 'od': 85.9, 'thk': 3.2},
+        'Class 600': {'id': 69.9, 'od': 85.9, 'thk': 3.2},
+        'Class 900': {'id': 58.7, 'od': 85.9, 'thk': 3.2},
+        'Class 1500': {'id': 58.7, 'od': 85.9, 'thk': 3.2},
+        'Class 2500': {'id': 58.7, 'od': 85.9, 'thk': 3.2},
+      }
+    },
+    {
+      'nps': '4"', 'dn': 100,
+      'classes': {
+        'Class 150': {'id': 127.0, 'od': 149.4, 'thk': 3.2},
+        'Class 300': {'id': 127.0, 'od': 149.4, 'thk': 3.2},
+        'Class 600': {'id': 120.7, 'od': 149.4, 'thk': 3.2},
+        'Class 900': {'id': 120.7, 'od': 149.4, 'thk': 3.2},
+        'Class 1500': {'id': 117.6, 'od': 149.4, 'thk': 3.2},
+        'Class 2500': {'id': 117.6, 'od': 149.4, 'thk': 3.2},
+      }
+    },
+    {
+      'nps': '8"', 'dn': 200,
+      'classes': {
+        'Class 150': {'id': 233.4, 'od': 263.7, 'thk': 3.2},
+        'Class 300': {'id': 233.4, 'od': 263.7, 'thk': 3.2},
+        'Class 600': {'id': 225.6, 'od': 263.7, 'thk': 3.2},
+        'Class 900': {'id': 222.3, 'od': 257.3, 'thk': 3.2},
+        'Class 1500': {'id': 215.9, 'od': 257.3, 'thk': 3.2},
+        'Class 2500': {'id': 215.9, 'od': 257.3, 'thk': 3.2},
+      }
+    },
+    {
+      'nps': '12"', 'dn': 300,
+      'classes': {
+        'Class 150': {'id': 339.9, 'od': 374.7, 'thk': 3.2},
+        'Class 300': {'id': 339.9, 'od': 374.7, 'thk': 3.2},
+        'Class 600': {'id': 327.2, 'od': 374.7, 'thk': 3.2},
+        'Class 900': {'id': 323.9, 'od': 368.3, 'thk': 3.2},
+        'Class 1500': {'id': 323.9, 'od': 368.3, 'thk': 3.2},
+        'Class 2500': {'id': 317.5, 'od': 368.3, 'thk': 3.2},
+      }
+    },
+  ];
+
+  // ASME B16.10 Flanged Valve Face-to-Face - Gate (solid wedge / conduit long pattern),
+  // Ball (short pattern, matches gate at these classes), and Swing Check.
+  static final List<Map<String, dynamic>> valves = [
+    {
+      'nps': '1/2"', 'dn': 15,
+      'classes': {
+        'Class 150': {'gateFtf': 108.0, 'ballFtf': 108.0, 'checkFtf': 108.0},
+        'Class 300': {'gateFtf': 140.0, 'ballFtf': 140.0, 'checkFtf': 140.0},
+        'Class 600': {'gateFtf': 165.0, 'ballFtf': 165.0, 'checkFtf': 165.0},
+      }
+    },
+    {
+      'nps': '1"', 'dn': 25,
+      'classes': {
+        'Class 150': {'gateFtf': 127.0, 'ballFtf': 127.0, 'checkFtf': 127.0},
+        'Class 300': {'gateFtf': 165.0, 'ballFtf': 165.0, 'checkFtf': 216.0},
+        'Class 600': {'gateFtf': 216.0, 'ballFtf': 216.0, 'checkFtf': 216.0},
+      }
+    },
+    {
+      'nps': '2"', 'dn': 50,
+      'classes': {
+        'Class 150': {'gateFtf': 178.0, 'ballFtf': 178.0, 'checkFtf': 178.0},
+        'Class 300': {'gateFtf': 216.0, 'ballFtf': 216.0, 'checkFtf': 267.0},
+        'Class 600': {'gateFtf': 292.0, 'ballFtf': 292.0, 'checkFtf': 292.0},
+      }
+    },
+    {
+      'nps': '4"', 'dn': 100,
+      'classes': {
+        'Class 150': {'gateFtf': 229.0, 'ballFtf': 229.0, 'checkFtf': 229.0},
+        'Class 300': {'gateFtf': 305.0, 'ballFtf': 305.0, 'checkFtf': 356.0},
+        'Class 600': {'gateFtf': 432.0, 'ballFtf': 432.0, 'checkFtf': 432.0},
+      }
+    },
+    {
+      'nps': '8"', 'dn': 200,
+      'classes': {
+        'Class 150': {'gateFtf': 292.0, 'ballFtf': 292.0, 'checkFtf': 292.0},
+        'Class 300': {'gateFtf': 419.0, 'ballFtf': 419.0, 'checkFtf': 533.0},
+        'Class 600': {'gateFtf': 660.0, 'ballFtf': 660.0, 'checkFtf': 660.0},
+      }
+    },
+    {
+      'nps': '12"', 'dn': 300,
+      'classes': {
+        'Class 150': {'gateFtf': 356.0, 'ballFtf': 356.0, 'checkFtf': 356.0},
+        'Class 300': {'gateFtf': 502.0, 'ballFtf': 502.0, 'checkFtf': 711.0},
+        'Class 600': {'gateFtf': 838.0, 'ballFtf': 838.0, 'checkFtf': 838.0},
+      }
+    },
   ];
 }
