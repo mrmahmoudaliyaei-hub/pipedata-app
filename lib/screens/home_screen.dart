@@ -1,0 +1,135 @@
+import 'package:flutter/cupertino.dart';
+import '../core/category_meta.dart';
+import '../core/models.dart';
+import '../widgets/category_card.dart';
+import 'category_detail_screen.dart';
+import 'pipeline_screen.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String _query = '';
+
+  void _open(CategoryMeta meta) {
+    if (meta.category == ComponentCategory.pipelineTransport) {
+      Navigator.of(context).push(CupertinoPageRoute(builder: (_) => const PipelineScreen()));
+    } else {
+      Navigator.of(context).push(CupertinoPageRoute(builder: (_) => CategoryDetailScreen(category: meta.category)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool searching = _query.trim().isNotEmpty;
+    final List<CategoryMeta> results = searching ? CategoryRegistry.search(_query) : [];
+
+    return CupertinoPageScaffold(
+      backgroundColor: const Color(0xFF000000),
+      child: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          CupertinoSliverNavigationBar(
+            backgroundColor: const Color(0xFF000000),
+            border: null,
+            largeTitle: const Text('Piping Data Pro'),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: CupertinoSearchTextField(
+                      placeholder: 'Search components or sizes',
+                      style: const TextStyle(color: CupertinoColors.white),
+                      onChanged: (v) => setState(() => _query = v),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 6, 16, 2),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1C1C1E),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFF2C2C2E)),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(CupertinoIcons.shield, color: Color(0xFF30D158), size: 12),
+                        SizedBox(width: 5),
+                        Text('ASME / MSS Reference Suite', style: TextStyle(fontSize: 10, color: Color(0xFF30D158), fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (searching)
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  childAspectRatio: 1.05,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (context, i) => CategoryCard(meta: results[i], onTap: () => _open(results[i])),
+                  childCount: results.length,
+                ),
+              ),
+            )
+          else
+            ..._buildGroupedSlivers(),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildGroupedSlivers() {
+    final List<Widget> slivers = [];
+    for (final group in CategoryRegistry.groups) {
+      slivers.add(SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(18, 18, 16, 8),
+          child: Text(
+            group.title.toUpperCase(),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF8E8E93), letterSpacing: 0.4),
+          ),
+        ),
+      ));
+      slivers.add(SliverPadding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        sliver: SliverGrid(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+            childAspectRatio: 1.05,
+          ),
+          delegate: SliverChildBuilderDelegate(
+            (context, i) => CategoryCard(meta: group.items[i], onTap: () => _open(group.items[i])),
+            childCount: group.items.length,
+          ),
+        ),
+      ));
+    }
+    slivers.add(const SliverToBoxAdapter(child: SizedBox(height: 24)));
+    return slivers;
+  }
+}

@@ -1,8 +1,26 @@
 import 'dart:math' as math;
 
-enum ComponentCategory { pipe, flange, buttWeld, socketWeld, threaded, reducer, gasket, valve }
+enum ComponentCategory {
+  pipe,
+  flange,
+  socketWeld,
+  threaded,
+  reducer,
+  gasket,
+  valve,
+  tee,
+  elbow,
+  cap,
+  weldolet,
+  sockolet,
+  threadolet,
+  pipelineTransport,
+}
 
 enum MaterialGrade { a106B, a312Tp316L, a333Gr6 }
+
+/// API Spec 5L line-pipe grades used for ASME B31.4 transport-pipeline MAOP.
+enum PipelineGrade { gradeB, x42, x52, x60, x65, x70 }
 
 class PressureCalculationResult {
   final double mawpBar;
@@ -19,6 +37,24 @@ class PressureCalculationResult {
     required this.hydroTestPsi,
     required this.netTMin,
     required this.allowableStressMpa,
+  });
+}
+
+class PipelineCalculationResult {
+  final double maopBar;
+  final double maopPsi;
+  final double hydroTestBar;
+  final double hydroTestPsi;
+  final double smysMpa;
+  final double designFactor;
+
+  const PipelineCalculationResult({
+    required this.maopBar,
+    required this.maopPsi,
+    required this.hydroTestBar,
+    required this.hydroTestPsi,
+    required this.smysMpa,
+    required this.designFactor,
   });
 }
 
@@ -92,6 +128,69 @@ class PipingStressEngine {
       'Class 2500': {'ambient': 425.5, 't100': 388.3, 't200': 364.9, 't300': 331.9, 't400': 289.4, 'hydroShell': 638.5},
     };
     return ratings[ratingClass] ?? ratings['Class 150']!;
+  }
+}
+
+/// ASME B31.4 "Pipeline Transportation Systems for Liquids and Slurries".
+///
+/// SAFETY-CRITICAL: the 0.72 design factor (F) below is the ASME B31.4 base
+/// design factor for liquid transport pipelines (Table 403.2.1). This
+/// constant, and the Barlow formula it feeds, should be treated like any
+/// other safety-factor change — do not alter it without engineering
+/// sign-off; it mirrors the same 0.72 factor already used in the
+/// PipelineEngineerPro project.
+class PipelineTransportEngine {
+  static const double designFactorF = 0.72;
+
+  /// ASME B31.4 Para. 403.2.1 (Barlow's formula):
+  /// P = (2 * S * t * F) / D
+  /// P = MAOP, S = Specified Minimum Yield Strength (SMYS, API 5L), t = nominal
+  /// wall thickness, D = outside diameter, F = design factor (0.72).
+  static PipelineCalculationResult calculateMAOP({
+    required double outerDiameterMm,
+    required double nominalWallThkMm,
+    required PipelineGrade grade,
+  }) {
+    // S: Specified Minimum Yield Strength (SMYS) in MPa, per API Spec 5L.
+    double sMpa;
+    switch (grade) {
+      case PipelineGrade.gradeB:
+        sMpa = 241.0;
+        break;
+      case PipelineGrade.x42:
+        sMpa = 290.0;
+        break;
+      case PipelineGrade.x52:
+        sMpa = 358.0;
+        break;
+      case PipelineGrade.x60:
+        sMpa = 414.0;
+        break;
+      case PipelineGrade.x65:
+        sMpa = 448.0;
+        break;
+      case PipelineGrade.x70:
+        sMpa = 483.0;
+        break;
+    }
+
+    double pMpa = (2 * sMpa * nominalWallThkMm * designFactorF) / outerDiameterMm;
+    if (pMpa < 0) pMpa = 0;
+
+    double pBar = pMpa * 10.0;
+    double pPsi = pBar * 14.50377;
+    // ASME B31.4 Para. 437.4.1 / 49 CFR 195: hydrostatic test at 1.25x MAOP for liquid pipelines.
+    double hydroBar = pBar * 1.25;
+    double hydroPsi = hydroBar * 14.50377;
+
+    return PipelineCalculationResult(
+      maopBar: double.parse(pBar.toStringAsFixed(1)),
+      maopPsi: double.parse(pPsi.toStringAsFixed(0)),
+      hydroTestBar: double.parse(hydroBar.toStringAsFixed(1)),
+      hydroTestPsi: double.parse(hydroPsi.toStringAsFixed(0)),
+      smysMpa: sMpa,
+      designFactor: designFactorF,
+    );
   }
 }
 
@@ -300,21 +399,6 @@ class PipingMasterCatalog {
     },
   ];
 
-  // ASME B16.9 Butt-Weld Fittings
-  static final List<Map<String, dynamic>> buttWelds = [
-    {'nps': '1/2"', 'dn': 15, 'lrElbow90': 38.0, 'srElbow90': 25.4, 'elbow45': 16.0, 'teeCtoE': 25.0, 'redLen': 38.0, 'capLen': 25.0},
-    {'nps': '3/4"', 'dn': 20, 'lrElbow90': 38.0, 'srElbow90': 25.4, 'elbow45': 19.0, 'teeCtoE': 29.0, 'redLen': 38.0, 'capLen': 25.0},
-    {'nps': '1"', 'dn': 25, 'lrElbow90': 38.0, 'srElbow90': 25.4, 'elbow45': 22.0, 'teeCtoE': 38.0, 'redLen': 51.0, 'capLen': 38.0},
-    {'nps': '1-1/2"', 'dn': 40, 'lrElbow90': 57.0, 'srElbow90': 38.0, 'elbow45': 29.0, 'teeCtoE': 48.0, 'redLen': 64.0, 'capLen': 38.0},
-    {'nps': '2"', 'dn': 50, 'lrElbow90': 76.0, 'srElbow90': 51.0, 'elbow45': 35.0, 'teeCtoE': 64.0, 'redLen': 76.0, 'capLen': 38.0},
-    {'nps': '3"', 'dn': 80, 'lrElbow90': 114.0, 'srElbow90': 76.0, 'elbow45': 51.0, 'teeCtoE': 86.0, 'redLen': 89.0, 'capLen': 51.0},
-    {'nps': '4"', 'dn': 100, 'lrElbow90': 152.0, 'srElbow90': 102.0, 'elbow45': 64.0, 'teeCtoE': 105.0, 'redLen': 102.0, 'capLen': 64.0},
-    {'nps': '6"', 'dn': 150, 'lrElbow90': 229.0, 'srElbow90': 152.0, 'elbow45': 95.0, 'teeCtoE': 143.0, 'redLen': 140.0, 'capLen': 89.0},
-    {'nps': '8"', 'dn': 200, 'lrElbow90': 305.0, 'srElbow90': 203.0, 'elbow45': 127.0, 'teeCtoE': 178.0, 'redLen': 152.0, 'capLen': 102.0},
-    {'nps': '10"', 'dn': 250, 'lrElbow90': 381.0, 'srElbow90': 254.0, 'elbow45': 159.0, 'teeCtoE': 216.0, 'redLen': 178.0, 'capLen': 127.0},
-    {'nps': '12"', 'dn': 300, 'lrElbow90': 457.0, 'srElbow90': 305.0, 'elbow45': 190.0, 'teeCtoE': 254.0, 'redLen': 203.0, 'capLen': 152.0},
-  ];
-
   // ASME B16.11 Forged Socket-Weld Class 3000 / 6000
   static final List<Map<String, dynamic>> socketWelds = [
     {'nps': '1/2"', 'dn': 15, 'boreDia': 21.8, 'depth': 9.5, 'cToE': 24.5, 'minWall': 4.67, 'gap': 1.6},
@@ -474,5 +558,92 @@ class PipingMasterCatalog {
         'Class 600': {'gateFtf': 838.0, 'ballFtf': 838.0, 'checkFtf': 838.0},
       }
     },
+  ];
+
+  // ASME B16.9 Equal Tees - Center-to-End (C)
+  static final List<Map<String, dynamic>> tees = [
+    {'nps': '1/2"', 'dn': 15, 'teeCtoE': 25.0},
+    {'nps': '3/4"', 'dn': 20, 'teeCtoE': 29.0},
+    {'nps': '1"', 'dn': 25, 'teeCtoE': 38.0},
+    {'nps': '1-1/2"', 'dn': 40, 'teeCtoE': 48.0},
+    {'nps': '2"', 'dn': 50, 'teeCtoE': 64.0},
+    {'nps': '3"', 'dn': 80, 'teeCtoE': 86.0},
+    {'nps': '4"', 'dn': 100, 'teeCtoE': 105.0},
+    {'nps': '6"', 'dn': 150, 'teeCtoE': 143.0},
+    {'nps': '8"', 'dn': 200, 'teeCtoE': 178.0},
+    {'nps': '10"', 'dn': 250, 'teeCtoE': 216.0},
+    {'nps': '12"', 'dn': 300, 'teeCtoE': 254.0},
+  ];
+
+  // ASME B16.9 Butt-Weld Elbows - Center-to-End by pattern (90 LR / 90 SR / 45)
+  static final List<Map<String, dynamic>> elbows = [
+    {'nps': '1/2"', 'dn': 15, 'angles': {'90° Long Radius': 38.0, '90° Short Radius': 25.4, '45°': 16.0}},
+    {'nps': '3/4"', 'dn': 20, 'angles': {'90° Long Radius': 38.0, '90° Short Radius': 25.4, '45°': 19.0}},
+    {'nps': '1"', 'dn': 25, 'angles': {'90° Long Radius': 38.0, '90° Short Radius': 25.4, '45°': 22.0}},
+    {'nps': '1-1/2"', 'dn': 40, 'angles': {'90° Long Radius': 57.0, '90° Short Radius': 38.0, '45°': 29.0}},
+    {'nps': '2"', 'dn': 50, 'angles': {'90° Long Radius': 76.0, '90° Short Radius': 51.0, '45°': 35.0}},
+    {'nps': '3"', 'dn': 80, 'angles': {'90° Long Radius': 114.0, '90° Short Radius': 76.0, '45°': 51.0}},
+    {'nps': '4"', 'dn': 100, 'angles': {'90° Long Radius': 152.0, '90° Short Radius': 102.0, '45°': 64.0}},
+    {'nps': '6"', 'dn': 150, 'angles': {'90° Long Radius': 229.0, '90° Short Radius': 152.0, '45°': 95.0}},
+    {'nps': '8"', 'dn': 200, 'angles': {'90° Long Radius': 305.0, '90° Short Radius': 203.0, '45°': 127.0}},
+    {'nps': '10"', 'dn': 250, 'angles': {'90° Long Radius': 381.0, '90° Short Radius': 254.0, '45°': 159.0}},
+    {'nps': '12"', 'dn': 300, 'angles': {'90° Long Radius': 457.0, '90° Short Radius': 305.0, '45°': 190.0}},
+  ];
+
+  // ASME B16.9 Butt-Weld Caps - Length (E)
+  static final List<Map<String, dynamic>> caps = [
+    {'nps': '1/2"', 'dn': 15, 'capLen': 25.0},
+    {'nps': '3/4"', 'dn': 20, 'capLen': 25.0},
+    {'nps': '1"', 'dn': 25, 'capLen': 38.0},
+    {'nps': '1-1/2"', 'dn': 40, 'capLen': 38.0},
+    {'nps': '2"', 'dn': 50, 'capLen': 38.0},
+    {'nps': '3"', 'dn': 80, 'capLen': 51.0},
+    {'nps': '4"', 'dn': 100, 'capLen': 64.0},
+    {'nps': '6"', 'dn': 150, 'capLen': 89.0},
+    {'nps': '8"', 'dn': 200, 'capLen': 102.0},
+    {'nps': '10"', 'dn': 250, 'capLen': 127.0},
+    {'nps': '12"', 'dn': 300, 'capLen': 152.0},
+  ];
+
+  // MSS SP-97 Weldolets, size-on-size, Standard Weight - Height (A, from run pipe OD to top face)
+  static final List<Map<String, dynamic>> weldolets = [
+    {'nps': '1/2"', 'dn': 15, 'height': 19.05},
+    {'nps': '3/4"', 'dn': 20, 'height': 22.23},
+    {'nps': '1"', 'dn': 25, 'height': 26.99},
+    {'nps': '1-1/2"', 'dn': 40, 'height': 33.34},
+    {'nps': '2"', 'dn': 50, 'height': 38.10},
+    {'nps': '3"', 'dn': 80, 'height': 44.45},
+    {'nps': '4"', 'dn': 100, 'height': 50.80},
+    {'nps': '6"', 'dn': 150, 'height': 60.30},
+    {'nps': '8"', 'dn': 200, 'height': 69.85},
+    {'nps': '10"', 'dn': 250, 'height': 77.79},
+    {'nps': '12"', 'dn': 300, 'height': 85.73},
+    {'nps': '16"', 'dn': 400, 'height': 93.66},
+    {'nps': '20"', 'dn': 500, 'height': 117.48},
+    {'nps': '24"', 'dn': 600, 'height': 136.53},
+  ];
+
+  // MSS SP-97 Sockolets, size-on-size, Class 3000 - Height (A) and socket depth (E)
+  static final List<Map<String, dynamic>> sockolets = [
+    {'nps': '1/2"', 'dn': 15, 'height': 25.40, 'socketDepth': 14.28},
+    {'nps': '3/4"', 'dn': 20, 'height': 26.98, 'socketDepth': 14.28},
+    {'nps': '1"', 'dn': 25, 'height': 33.33, 'socketDepth': 19.84},
+    {'nps': '1-1/2"', 'dn': 40, 'height': 34.92, 'socketDepth': 19.05},
+    {'nps': '2"', 'dn': 50, 'height': 38.10, 'socketDepth': 20.63},
+    {'nps': '3"', 'dn': 80, 'height': 44.45, 'socketDepth': 23.81},
+    {'nps': '4"', 'dn': 100, 'height': 47.62, 'socketDepth': 26.98},
+    {'nps': '6"', 'dn': 150, 'height': 69.85, 'socketDepth': 35.71},
+  ];
+
+  // MSS SP-97 Threadolets, size-on-size, Class 3000 - Height (A)
+  static final List<Map<String, dynamic>> threadolets = [
+    {'nps': '1/2"', 'dn': 15, 'height': 25.40},
+    {'nps': '3/4"', 'dn': 20, 'height': 26.98},
+    {'nps': '1"', 'dn': 25, 'height': 33.33},
+    {'nps': '1-1/2"', 'dn': 40, 'height': 34.92},
+    {'nps': '2"', 'dn': 50, 'height': 38.10},
+    {'nps': '3"', 'dn': 80, 'height': 50.80},
+    {'nps': '4"', 'dn': 100, 'height': 57.15},
+    {'nps': '6"', 'dn': 150, 'height': 69.85},
   ];
 }

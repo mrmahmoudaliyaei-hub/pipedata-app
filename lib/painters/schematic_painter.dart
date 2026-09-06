@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../core/models.dart';
 
 class VectorBlueprintPainter extends CustomPainter {
@@ -42,12 +42,19 @@ class VectorBlueprintPainter extends CustomPainter {
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
 
+    final linePipeline = Paint()
+      ..color = const Color(0xFFFF453A)
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+
     switch (category) {
       case ComponentCategory.pipe:
+      case ComponentCategory.pipelineTransport:
         final schs = data['schedules'] as Map<String, dynamic>;
         final currentSch = schs[subType] ?? schs.values.first;
         final double od = (data['od'] as num).toDouble();
         final double thk = (currentSch['thk'] as num).toDouble();
+        final accent = category == ComponentCategory.pipelineTransport ? linePipeline : lineAccent;
 
         final double rOut = size.height * 0.40;
         final double rIn = rOut * (1.0 - (2.0 * thk / od)).clamp(0.20, 0.94);
@@ -63,7 +70,8 @@ class VectorBlueprintPainter extends CustomPainter {
 
         _drawCrosshairs(canvas, center, rOut + 16, lineCenter);
         _drawDimension(canvas, Offset(center.dx - rOut, center.dy), Offset(center.dx + rOut, center.dy), 'OD: ${od.toStringAsFixed(1)} mm', lineDim);
-        _drawLeader(canvas, Offset(center.dx + (rOut + rIn) / 2, center.dy - 8), Offset(center.dx + rOut + 25, center.dy - 35), 't: ${thk} mm (Bevel 37.5°)', lineAccent);
+        final label = category == ComponentCategory.pipelineTransport ? 't: ${thk} mm (Transport Line)' : 't: ${thk} mm (Bevel 37.5°)';
+        _drawLeader(canvas, Offset(center.dx + (rOut + rIn) / 2, center.dy - 8), Offset(center.dx + rOut + 25, center.dy - 35), label, accent);
         break;
 
       case ComponentCategory.flange:
@@ -90,20 +98,69 @@ class VectorBlueprintPainter extends CustomPainter {
         _drawLeader(canvas, Offset(center.dx + rFlange * 0.8, center.dy - rFlange * 0.5), Offset(center.dx + rFlange + 15, center.dy - rFlange * 0.6), '${boltCount}x Holes (${flg['boltSize']})', lineDim);
         break;
 
-      case ComponentCategory.buttWeld:
-        final double cToE = ((data['lrElbow90'] ?? 76.0) as num).toDouble();
+      case ComponentCategory.tee:
+        final double cToE = ((data['teeCtoE'] ?? 64.0) as num).toDouble();
+        final runPath = Path()
+          ..moveTo(center.dx - 70, center.dy - 18)
+          ..lineTo(center.dx + 70, center.dy - 18)
+          ..lineTo(center.dx + 70, center.dy + 18)
+          ..lineTo(center.dx - 70, center.dy + 18)
+          ..close();
+        canvas.drawPath(runPath, lineOutline);
+        final branchPath = Path()
+          ..moveTo(center.dx - 18, center.dy - 18)
+          ..lineTo(center.dx - 18, center.dy - 62)
+          ..lineTo(center.dx + 18, center.dy - 62)
+          ..lineTo(center.dx + 18, center.dy - 18)
+          ..close();
+        canvas.drawPath(branchPath, lineOutline);
+        canvas.drawLine(Offset(center.dx - 70, center.dy), Offset(center.dx + 70, center.dy), lineCenter);
+        canvas.drawLine(Offset(center.dx, center.dy - 62), Offset(center.dx, center.dy + 18), lineCenter);
+
+        _drawDimension(canvas, Offset(center.dx, center.dy), Offset(center.dx + 70, center.dy), 'C-to-E: ${cToE.toStringAsFixed(0)} mm', lineAccent);
+        _drawLeader(canvas, Offset(center.dx, center.dy - 62), Offset(center.dx - 30, center.dy - 85), 'ASME B16.9 Equal Tee', lineWeld);
+        break;
+
+      case ComponentCategory.elbow:
+        final angles = data['angles'] as Map<String, dynamic>;
+        final double cToE = ((angles[subType] ?? angles.values.first) as num).toDouble();
+        final bool isFortyFive = subType == '45°';
         final path = Path();
         path.moveTo(center.dx - 65, center.dy + 65);
-        path.quadraticBezierTo(center.dx - 65, center.dy - 65, center.dx + 65, center.dy - 65);
+        if (isFortyFive) {
+          path.quadraticBezierTo(center.dx - 65, center.dy + 10, center.dx + 20, center.dy - 30);
+        } else {
+          path.quadraticBezierTo(center.dx - 65, center.dy - 65, center.dx + 65, center.dy - 65);
+        }
         canvas.drawPath(path, lineOutline);
 
         final clPath = Path();
         clPath.moveTo(center.dx - 45, center.dy + 65);
-        clPath.quadraticBezierTo(center.dx - 45, center.dy - 45, center.dx + 65, center.dy - 45);
+        if (isFortyFive) {
+          clPath.quadraticBezierTo(center.dx - 45, center.dy + 20, center.dx + 10, center.dy - 12);
+        } else {
+          clPath.quadraticBezierTo(center.dx - 45, center.dy - 45, center.dx + 65, center.dy - 45);
+        }
         canvas.drawPath(clPath, lineCenter);
 
-        _drawDimension(canvas, Offset(center.dx - 45, center.dy + 65), Offset(center.dx - 45, center.dy - 45), 'C-to-E: ${cToE} mm', lineAccent);
+        _drawDimension(canvas, Offset(center.dx - 45, center.dy + 65), Offset(center.dx - 45, center.dy - 45), 'C-to-E: ${cToE.toStringAsFixed(1)} mm', lineAccent);
         _drawLeader(canvas, Offset(center.dx + 65, center.dy - 65), Offset(center.dx + 75, center.dy - 85), 'ASME B16.9 Bevel (Root 1.6mm)', lineWeld);
+        break;
+
+      case ComponentCategory.cap:
+        final double capLen = ((data['capLen'] ?? 38.0) as num).toDouble();
+        final capPath = Path()
+          ..moveTo(center.dx - 20, center.dy + 55)
+          ..lineTo(center.dx - 20, center.dy - 20)
+          ..quadraticBezierTo(center.dx - 20, center.dy - 55, center.dx + 15, center.dy - 55)
+          ..quadraticBezierTo(center.dx + 50, center.dy - 55, center.dx + 50, center.dy - 20)
+          ..lineTo(center.dx + 50, center.dy + 55);
+        canvas.drawPath(capPath, lineOutline);
+        canvas.drawLine(Offset(center.dx - 20, center.dy + 55), Offset(center.dx + 50, center.dy + 55), lineOutline);
+        canvas.drawLine(Offset(center.dx + 15, center.dy - 55), Offset(center.dx + 15, center.dy + 60), lineCenter);
+
+        _drawDimension(canvas, Offset(center.dx - 20, center.dy + 70), Offset(center.dx + 50, center.dy + 70), 'Length: ${capLen.toStringAsFixed(0)} mm', lineDim);
+        _drawLeader(canvas, Offset(center.dx + 15, center.dy - 55), Offset(center.dx + 45, center.dy - 78), 'Domed Closure (B16.9)', lineWeld);
         break;
 
       case ComponentCategory.socketWeld:
@@ -137,27 +194,17 @@ class VectorBlueprintPainter extends CustomPainter {
         final double rLarge = 46.0;
         final double rSmall = 22.0;
 
-        final Path body;
+        final Path body = Path()
+          ..moveTo(center.dx - halfLen, center.dy - rLarge)
+          ..lineTo(center.dx + halfLen, center.dy - rSmall)
+          ..lineTo(center.dx + halfLen, center.dy + rSmall)
+          ..lineTo(center.dx - halfLen, center.dy + rLarge)
+          ..close();
         if (eccentric) {
-          // Flat on the bottom (common orientation to keep a level pipe run), taper on top only.
-          body = Path()
-            ..moveTo(center.dx - halfLen, center.dy - rLarge)
-            ..lineTo(center.dx + halfLen, center.dy - rSmall)
-            ..lineTo(center.dx + halfLen, center.dy + rSmall)
-            ..lineTo(center.dx - halfLen, center.dy + rLarge)
-            ..close();
           canvas.drawLine(Offset(center.dx - halfLen, center.dy + rLarge), Offset(center.dx + halfLen, center.dy + rSmall), lineCenter);
-        } else {
-          body = Path()
-            ..moveTo(center.dx - halfLen, center.dy - rLarge)
-            ..lineTo(center.dx + halfLen, center.dy - rSmall)
-            ..lineTo(center.dx + halfLen, center.dy + rSmall)
-            ..lineTo(center.dx - halfLen, center.dy + rLarge)
-            ..close();
         }
         canvas.drawPath(body, lineOutline);
         canvas.drawLine(Offset(center.dx - halfLen - 14, center.dy), Offset(center.dx + halfLen + 14, center.dy), lineCenter);
-        // End flange ticks
         canvas.drawLine(Offset(center.dx - halfLen, center.dy - rLarge), Offset(center.dx - halfLen, center.dy + rLarge), lineOutline);
         canvas.drawLine(Offset(center.dx + halfLen, center.dy - rSmall), Offset(center.dx + halfLen, center.dy + rSmall), lineOutline);
 
@@ -178,7 +225,6 @@ class VectorBlueprintPainter extends CustomPainter {
         canvas.drawCircle(center, rOut, lineOutline);
         canvas.drawCircle(center, rIn, lineOutline);
 
-        // Spiral winding hint: a few concentric dashed-look rings between ID and OD.
         for (int i = 1; i <= 3; i++) {
           final double r = rIn + (rOut - rIn) * (i / 4.0);
           canvas.drawCircle(center, r, Paint()..color = const Color(0x40FF9F0A)..strokeWidth = 0.8..style = PaintingStyle.stroke);
@@ -199,7 +245,6 @@ class VectorBlueprintPainter extends CustomPainter {
         final double bodyH = 46.0;
         final double flangeH = 64.0;
 
-        // Body (lens/oval-ish valve body)
         final bodyPath = Path()
           ..moveTo(center.dx - halfLen + 10, center.dy - bodyH / 2)
           ..quadraticBezierTo(center.dx, center.dy - bodyH / 2 - 10, center.dx + halfLen - 10, center.dy - bodyH / 2)
@@ -208,13 +253,11 @@ class VectorBlueprintPainter extends CustomPainter {
           ..close();
         canvas.drawPath(bodyPath, lineOutline);
 
-        // Flanged ends
         canvas.drawLine(Offset(center.dx - halfLen, center.dy - flangeH / 2), Offset(center.dx - halfLen, center.dy + flangeH / 2), lineOutline);
         canvas.drawLine(Offset(center.dx + halfLen, center.dy - flangeH / 2), Offset(center.dx + halfLen, center.dy + flangeH / 2), lineOutline);
         canvas.drawLine(Offset(center.dx - halfLen - 6, center.dy - flangeH / 2), Offset(center.dx - halfLen - 6, center.dy + flangeH / 2), lineDim);
         canvas.drawLine(Offset(center.dx + halfLen + 6, center.dy - flangeH / 2), Offset(center.dx + halfLen + 6, center.dy + flangeH / 2), lineDim);
 
-        // Stem + handwheel indicator
         canvas.drawLine(Offset(center.dx, center.dy - bodyH / 2 - 8), Offset(center.dx, center.dy - bodyH / 2 - 30), lineWeld);
         canvas.drawCircle(Offset(center.dx, center.dy - bodyH / 2 - 38), 8.0, lineWeld);
 
@@ -222,6 +265,44 @@ class VectorBlueprintPainter extends CustomPainter {
 
         _drawDimension(canvas, Offset(center.dx - halfLen - 6, center.dy + flangeH / 2 + 16), Offset(center.dx + halfLen + 6, center.dy + flangeH / 2 + 16), 'FtF (Gate): ${ftf.toStringAsFixed(0)} mm', lineDim);
         _drawLeader(canvas, Offset(center.dx, center.dy - bodyH / 2 - 46), Offset(center.dx + 20, center.dy - bodyH / 2 - 70), 'ASME B16.10', lineAccent);
+        break;
+
+      case ComponentCategory.weldolet:
+      case ComponentCategory.sockolet:
+      case ComponentCategory.threadolet:
+        final double height = ((data['height'] ?? 40.0) as num).toDouble();
+        final double runHalfW = 85.0;
+        final double runH = 40.0;
+        final double stubW = 26.0;
+        final double stubTop = center.dy - runH / 2 - 60;
+
+        // Run pipe (horizontal)
+        canvas.drawRect(Rect.fromCenter(center: Offset(center.dx, center.dy + 30), width: runHalfW * 2, height: runH), lineOutline);
+        canvas.drawLine(Offset(center.dx - runHalfW, center.dy + 30), Offset(center.dx + runHalfW, center.dy + 30), lineCenter);
+
+        // Outlet stub (vertical)
+        final stubTopY = category == ComponentCategory.weldolet
+            ? stubTop
+            : (category == ComponentCategory.sockolet ? stubTop + 6 : stubTop + 10);
+        canvas.drawRect(Rect.fromLTRB(center.dx - stubW / 2, stubTopY, center.dx + stubW / 2, center.dy + 30 - runH / 2 + 2), lineOutline);
+        canvas.drawLine(Offset(center.dx, stubTopY - 4), Offset(center.dx, center.dy + 30 + runH / 2 - 4), lineCenter);
+
+        if (category == ComponentCategory.weldolet) {
+          // Weld bevel at top face
+          canvas.drawLine(Offset(center.dx - stubW / 2 - 3, stubTopY - 3), Offset(center.dx + stubW / 2 + 3, stubTopY - 3), lineWeld);
+        } else if (category == ComponentCategory.sockolet) {
+          // Socket step
+          canvas.drawRect(Rect.fromLTRB(center.dx - stubW / 2 - 4, stubTopY, center.dx + stubW / 2 + 4, stubTopY + 14), lineDim);
+        } else {
+          // Thread ticks
+          for (double y = stubTopY; y <= stubTopY + 20; y += 5) {
+            canvas.drawLine(Offset(center.dx - stubW / 2 - 4, y), Offset(center.dx + stubW / 2 + 4, y), lineAccent);
+          }
+        }
+
+        _drawDimension(canvas, Offset(center.dx + stubW / 2 + 20, stubTopY), Offset(center.dx + stubW / 2 + 20, center.dy + 30 - runH / 2), 'H: ${height.toStringAsFixed(1)} mm', lineDim);
+        _drawLeader(canvas, Offset(center.dx - runHalfW * 0.6, center.dy + 30), Offset(center.dx - runHalfW - 15, center.dy + 60), 'Run Pipe', lineAccent);
+        _drawLeader(canvas, Offset(center.dx, stubTopY), Offset(center.dx + 40, stubTopY - 20), 'MSS SP-97', lineWeld);
         break;
     }
   }
