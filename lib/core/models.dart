@@ -269,6 +269,17 @@ class PipingMasterCatalog {
       }
     },
     {
+      'nps': '5"', 'dn': 125, 'od': 141.30,
+      'schedules': {
+        'Sch 10': {'thk': 3.40, 'id': 134.50, 'wt': 11.56},
+        'Sch 40 (STD)': {'thk': 6.55, 'id': 128.20, 'wt': 21.77},
+        'Sch 80 (XS)': {'thk': 9.52, 'id': 122.26, 'wt': 30.94},
+        'Sch 120': {'thk': 12.70, 'id': 115.90, 'wt': 40.28},
+        'Sch 160': {'thk': 15.88, 'id': 109.54, 'wt': 49.11},
+        'XXS': {'thk': 19.05, 'id': 103.20, 'wt': 57.43},
+      }
+    },
+    {
       'nps': '6"', 'dn': 150, 'od': 168.28,
       'schedules': {
         'Sch 10': {'thk': 3.40, 'id': 161.48, 'wt': 13.82},
@@ -308,12 +319,32 @@ class PipingMasterCatalog {
       }
     },
     {
+      'nps': '14"', 'dn': 350, 'od': 355.60,
+      'schedules': {
+        'Sch 10': {'thk': 6.35, 'id': 342.90, 'wt': 54.69},
+        'Sch 20': {'thk': 7.92, 'id': 339.76, 'wt': 67.90},
+        'Sch 40 (STD)': {'thk': 11.13, 'id': 333.34, 'wt': 94.55},
+        'Sch 80 (XS)': {'thk': 19.05, 'id': 317.50, 'wt': 158.10},
+        'Sch 160': {'thk': 35.71, 'id': 284.18, 'wt': 281.70},
+      }
+    },
+    {
       'nps': '16"', 'dn': 400, 'od': 406.40,
       'schedules': {
         'Sch 20': {'thk': 6.35, 'id': 393.70, 'wt': 62.64},
         'Sch 40 (STD)': {'thk': 12.70, 'id': 381.00, 'wt': 123.30},
         'Sch 80 (XS)': {'thk': 21.44, 'id': 363.52, 'wt': 203.53},
         'Sch 160': {'thk': 40.49, 'id': 325.42, 'wt': 365.36},
+      }
+    },
+    {
+      'nps': '18"', 'dn': 450, 'od': 457.20,
+      'schedules': {
+        'Sch 10': {'thk': 6.35, 'id': 444.50, 'wt': 70.60},
+        'Sch 20': {'thk': 7.92, 'id': 441.36, 'wt': 87.75},
+        'Sch 40 (STD)': {'thk': 14.27, 'id': 428.66, 'wt': 155.87},
+        'Sch 80 (XS)': {'thk': 23.83, 'id': 409.54, 'wt': 254.67},
+        'Sch 160': {'thk': 45.24, 'id': 366.72, 'wt': 459.59},
       }
     },
     {
@@ -325,11 +356,81 @@ class PipingMasterCatalog {
       }
     },
     {
+      'nps': '22"', 'dn': 550, 'od': 558.80,
+      'schedules': {
+        'Sch 10': {'thk': 6.35, 'id': 546.10, 'wt': 86.51},
+        'Std (Sch 20)': {'thk': 9.52, 'id': 539.76, 'wt': 128.95},
+        'XS (Sch 30)': {'thk': 12.70, 'id': 533.40, 'wt': 171.03},
+      }
+    },
+    {
       'nps': '24"', 'dn': 600, 'od': 609.60,
       'schedules': {
         'Sch 20': {'thk': 6.35, 'id': 596.90, 'wt': 94.46},
         'Sch 40 (STD)': {'thk': 17.48, 'id': 574.64, 'wt': 255.41},
         'Sch 80 (XS)': {'thk': 30.96, 'id': 447.68, 'wt': 441.97},
+      }
+    },
+    {
+      'nps': '26"', 'dn': 650, 'od': 660.40,
+      'schedules': {
+        'Sch 10': {'thk': 7.92, 'id': 644.56, 'wt': 127.43},
+        'Std (Sch 20)': {'thk': 9.52, 'id': 641.36, 'wt': 152.80},
+        'XS (Sch 30)': {'thk': 12.70, 'id': 635.00, 'wt': 202.85},
+      }
+    },
+    {
+      'nps': '28"', 'dn': 700, 'od': 711.20,
+      'schedules': {
+        'Sch 10': {'thk': 7.92, 'id': 695.36, 'wt': 137.36},
+        'Std (Sch 20)': {'thk': 9.52, 'id': 692.16, 'wt': 164.73},
+        'XS (Sch 30)': {'thk': 12.70, 'id': 685.80, 'wt': 218.76},
+      }
+    },
+    {
+      'nps': '30"', 'dn': 750, 'od': 762.00,
+      'schedules': {
+        'Sch 10': {'thk': 7.92, 'id': 746.16, 'wt': 147.28},
+        'Std (Sch 20)': {'thk': 9.52, 'id': 742.96, 'wt': 176.65},
+        'XS (Sch 30)': {'thk': 12.70, 'id': 736.60, 'wt': 234.67},
+      }
+    },
+    {
+      'nps': '32"', 'dn': 800, 'od': 812.80,
+      'schedules': {
+        'Sch 10': {'thk': 7.92, 'id': 796.96, 'wt': 157.20},
+        'Std (Sch 20)': {'thk': 9.52, 'id': 793.76, 'wt': 188.58},
+        'XS (Sch 30)': {'thk': 12.70, 'id': 787.40, 'wt': 250.58},
+      }
+    },
+    {
+      'nps': '34"', 'dn': 850, 'od': 863.60,
+      'schedules': {
+        'Sch 10': {'thk': 7.92, 'id': 847.76, 'wt': 167.12},
+        'Std (Sch 20)': {'thk': 9.52, 'id': 844.56, 'wt': 200.51},
+        'XS (Sch 30)': {'thk': 12.70, 'id': 838.20, 'wt': 266.49},
+      }
+    },
+    {
+      'nps': '36"', 'dn': 900, 'od': 914.40,
+      'schedules': {
+        'Sch 10': {'thk': 7.92, 'id': 898.56, 'wt': 177.04},
+        'Std (Sch 20)': {'thk': 9.52, 'id': 895.36, 'wt': 212.43},
+        'XS (Sch 30)': {'thk': 12.70, 'id': 889.00, 'wt': 282.40},
+      }
+    },
+    {
+      'nps': '42"', 'dn': 1050, 'od': 1066.80,
+      'schedules': {
+        'Std (Sch 20)': {'thk': 9.52, 'id': 1047.76, 'wt': 248.21},
+        'XS (Sch 30)': {'thk': 12.70, 'id': 1041.40, 'wt': 330.13},
+      }
+    },
+    {
+      'nps': '48"', 'dn': 1200, 'od': 1219.20,
+      'schedules': {
+        'Std (Sch 20)': {'thk': 9.52, 'id': 1200.16, 'wt': 283.99},
+        'XS (Sch 30)': {'thk': 12.70, 'id': 1193.80, 'wt': 377.85},
       }
     },
   ];
@@ -348,6 +449,14 @@ class PipingMasterCatalog {
       }
     },
     {
+      'nps': '3/4"', 'dn': 20,
+      'classes': {
+        'Class 150': {'od': 98.6, 'thk': 12.7, 'pcd': 69.8, 'bolts': 4, 'boltSize': '1/2"', 'studLen': 94, 'torqueNm': 435},
+        'Class 300': {'od': 117.3, 'thk': 15.7, 'pcd': 82.5, 'bolts': 4, 'boltSize': '5/8"', 'studLen': 116, 'torqueNm': 625},
+        'Class 600': {'od': 117.3, 'thk': 15.7, 'pcd': 82.5, 'bolts': 4, 'boltSize': '5/8"', 'studLen': 141, 'torqueNm': 825},
+      }
+    },
+    {
       'nps': '1"', 'dn': 25,
       'classes': {
         'Class 150': {'od': 108.0, 'thk': 14.3, 'pcd': 79.4, 'bolts': 4, 'boltSize': '1/2"', 'studLen': 65, 'torqueNm': 55},
@@ -356,6 +465,14 @@ class PipingMasterCatalog {
         'Class 900': {'od': 150.0, 'thk': 28.6, 'pcd': 101.6, 'bolts': 4, 'boltSize': '7/8"', 'studLen': 125, 'torqueNm': 220},
         'Class 1500': {'od': 150.0, 'thk': 28.6, 'pcd': 101.6, 'bolts': 4, 'boltSize': '7/8"', 'studLen': 125, 'torqueNm': 220},
         'Class 2500': {'od': 160.0, 'thk': 35.0, 'pcd': 108.0, 'bolts': 4, 'boltSize': '7/8"', 'studLen': 140, 'torqueNm': 240},
+      }
+    },
+    {
+      'nps': '1-1/2"', 'dn': 40,
+      'classes': {
+        'Class 150': {'od': 127.0, 'thk': 17.5, 'pcd': 98.6, 'bolts': 4, 'boltSize': '1/2"', 'studLen': 104, 'torqueNm': 526},
+        'Class 300': {'od': 155.4, 'thk': 20.6, 'pcd': 114.3, 'bolts': 4, 'boltSize': '3/4"', 'studLen': 129, 'torqueNm': 747},
+        'Class 600': {'od': 155.4, 'thk': 20.6, 'pcd': 114.3, 'bolts': 4, 'boltSize': '3/4"', 'studLen': 154, 'torqueNm': 947},
       }
     },
     {
@@ -370,6 +487,15 @@ class PipingMasterCatalog {
       }
     },
     {
+      'nps': '3"', 'dn': 80,
+      'classes': {
+        'Class 150': {'od': 190.5, 'thk': 23.9, 'pcd': 152.4, 'bolts': 4, 'boltSize': '5/8"', 'studLen': 126, 'torqueNm': 729},
+        'Class 300': {'od': 209.5, 'thk': 28.4, 'pcd': 168.1, 'bolts': 8, 'boltSize': '3/4"', 'studLen': 148, 'torqueNm': 920},
+        'Class 600': {'od': 209.5, 'thk': 31.8, 'pcd': 168.1, 'bolts': 8, 'boltSize': '3/4"', 'studLen': 173, 'torqueNm': 1120},
+        'Class 900': {'od': 241.3, 'thk': 38.1, 'pcd': 171.4, 'bolts': 8, 'boltSize': '7/8"', 'studLen': 234, 'torqueNm': 1672},
+      }
+    },
+    {
       'nps': '4"', 'dn': 100,
       'classes': {
         'Class 150': {'od': 229.0, 'thk': 23.8, 'pcd': 190.5, 'bolts': 8, 'boltSize': '5/8"', 'studLen': 90, 'torqueNm': 130},
@@ -378,6 +504,24 @@ class PipingMasterCatalog {
         'Class 900': {'od': 292.0, 'thk': 44.5, 'pcd': 235.0, 'bolts': 8, 'boltSize': '1-1/8"', 'studLen': 170, 'torqueNm': 680},
         'Class 1500': {'od': 310.0, 'thk': 53.9, 'pcd': 241.3, 'bolts': 8, 'boltSize': '1-1/4"', 'studLen': 190, 'torqueNm': 950},
         'Class 2500': {'od': 355.0, 'thk': 76.2, 'pcd': 273.1, 'bolts': 8, 'boltSize': '1-1/2"', 'studLen': 245, 'torqueNm': 1650},
+      }
+    },
+    {
+      'nps': '5"', 'dn': 125,
+      'classes': {
+        'Class 150': {'od': 254.0, 'thk': 23.9, 'pcd': 215.9, 'bolts': 8, 'boltSize': '3/4"', 'studLen': 148, 'torqueNm': 932},
+        'Class 300': {'od': 279.4, 'thk': 35.1, 'pcd': 234.9, 'bolts': 8, 'boltSize': '7/8"', 'studLen': 172, 'torqueNm': 1144},
+        'Class 600': {'od': 330.2, 'thk': 44.4, 'pcd': 266.7, 'bolts': 8, 'boltSize': '1"', 'studLen': 215, 'torqueNm': 1506},
+        'Class 900': {'od': 361.9, 'thk': 57.1, 'pcd': 292.1, 'bolts': 8, 'boltSize': '1-1/4"', 'studLen': 276, 'torqueNm': 2058},
+      }
+    },
+    {
+      'nps': '6"', 'dn': 150,
+      'classes': {
+        'Class 150': {'od': 279.4, 'thk': 25.4, 'pcd': 241.3, 'bolts': 8, 'boltSize': '3/4"', 'studLen': 157, 'torqueNm': 1014},
+        'Class 300': {'od': 317.5, 'thk': 36.6, 'pcd': 269.7, 'bolts': 12, 'boltSize': '7/8"', 'studLen': 186, 'torqueNm': 1266},
+        'Class 600': {'od': 355.6, 'thk': 47.8, 'pcd': 292.1, 'bolts': 12, 'boltSize': '1"', 'studLen': 224, 'torqueNm': 1587},
+        'Class 900': {'od': 387.3, 'thk': 63.5, 'pcd': 317.5, 'bolts': 12, 'boltSize': '1-1/8"', 'studLen': 285, 'torqueNm': 2139},
       }
     },
     {
@@ -390,11 +534,60 @@ class PipingMasterCatalog {
       }
     },
     {
+      'nps': '10"', 'dn': 250,
+      'classes': {
+        'Class 150': {'od': 406.4, 'thk': 30.2, 'pcd': 361.9, 'bolts': 12, 'boltSize': '7/8"', 'studLen': 202, 'torqueNm': 1420},
+        'Class 300': {'od': 444.5, 'thk': 47.8, 'pcd': 387.3, 'bolts': 16, 'boltSize': '1"', 'studLen': 230, 'torqueNm': 1672},
+        'Class 600': {'od': 508.0, 'thk': 63.5, 'pcd': 431.8, 'bolts': 16, 'boltSize': '1-1/4"', 'studLen': 277, 'torqueNm': 2075},
+        'Class 900': {'od': 533.4, 'thk': 76.2, 'pcd': 444.5, 'bolts': 16, 'boltSize': '1-3/8"', 'studLen': 336, 'torqueNm': 2606},
+      }
+    },
+    {
       'nps': '12"', 'dn': 300,
       'classes': {
         'Class 150': {'od': 483.0, 'thk': 31.8, 'pcd': 431.8, 'bolts': 12, 'boltSize': '7/8"', 'studLen': 115, 'torqueNm': 390},
         'Class 300': {'od': 521.0, 'thk': 50.8, 'pcd': 450.9, 'bolts': 16, 'boltSize': '1-1/8"', 'studLen': 160, 'torqueNm': 750},
         'Class 600': {'od': 559.0, 'thk': 66.7, 'pcd': 489.0, 'bolts': 20, 'boltSize': '1-1/4"', 'studLen': 200, 'torqueNm': 1100},
+      }
+    },
+    {
+      'nps': '14"', 'dn': 350,
+      'classes': {
+        'Class 150': {'od': 533.4, 'thk': 35.1, 'pcd': 476.2, 'bolts': 12, 'boltSize': '1"', 'studLen': 246, 'torqueNm': 1826},
+        'Class 300': {'od': 584.2, 'thk': 53.8, 'pcd': 514.4, 'bolts': 20, 'boltSize': '1-1/8"', 'studLen': 279, 'torqueNm': 2119},
+        'Class 600': {'od': 603.2, 'thk': 69.8, 'pcd': 527.0, 'bolts': 20, 'boltSize': '1-3/8"', 'studLen': 311, 'torqueNm': 2380},
+      }
+    },
+    {
+      'nps': '16"', 'dn': 400,
+      'classes': {
+        'Class 150': {'od': 596.9, 'thk': 36.6, 'pcd': 539.8, 'bolts': 16, 'boltSize': '1"', 'studLen': 268, 'torqueNm': 2030},
+        'Class 300': {'od': 647.7, 'thk': 57.1, 'pcd': 571.5, 'bolts': 20, 'boltSize': '1-1/4"', 'studLen': 301, 'torqueNm': 2322},
+        'Class 600': {'od': 685.8, 'thk': 76.2, 'pcd': 603.2, 'bolts': 20, 'boltSize': '1-1/2"', 'studLen': 340, 'torqueNm': 2644},
+      }
+    },
+    {
+      'nps': '18"', 'dn': 450,
+      'classes': {
+        'Class 150': {'od': 635.0, 'thk': 39.6, 'pcd': 577.9, 'bolts': 16, 'boltSize': '1-1/8"', 'studLen': 282, 'torqueNm': 2152},
+        'Class 300': {'od': 711.2, 'thk': 60.5, 'pcd': 628.6, 'bolts': 24, 'boltSize': '1-1/4"', 'studLen': 323, 'torqueNm': 2525},
+        'Class 600': {'od': 742.9, 'thk': 82.5, 'pcd': 654.0, 'bolts': 20, 'boltSize': '1-5/8"', 'studLen': 360, 'torqueNm': 2827},
+      }
+    },
+    {
+      'nps': '20"', 'dn': 500,
+      'classes': {
+        'Class 150': {'od': 698.5, 'thk': 42.9, 'pcd': 635.0, 'bolts': 20, 'boltSize': '1-1/8"', 'studLen': 304, 'torqueNm': 2355},
+        'Class 300': {'od': 774.7, 'thk': 63.5, 'pcd': 685.8, 'bolts': 24, 'boltSize': '1-1/4"', 'studLen': 346, 'torqueNm': 2729},
+        'Class 600': {'od': 812.8, 'thk': 91.9, 'pcd': 723.9, 'bolts': 20, 'boltSize': '1-3/4"', 'studLen': 384, 'torqueNm': 3050},
+      }
+    },
+    {
+      'nps': '24"', 'dn': 600,
+      'classes': {
+        'Class 150': {'od': 812.8, 'thk': 47.8, 'pcd': 749.3, 'bolts': 20, 'boltSize': '1-1/4"', 'studLen': 344, 'torqueNm': 2720},
+        'Class 300': {'od': 914.4, 'thk': 69.8, 'pcd': 812.8, 'bolts': 24, 'boltSize': '1-3/8"', 'studLen': 395, 'torqueNm': 3176},
+        'Class 600': {'od': 939.8, 'thk': 101.6, 'pcd': 838.2, 'bolts': 20, 'boltSize': '2"', 'studLen': 428, 'torqueNm': 3457},
       }
     },
   ];
@@ -407,6 +600,7 @@ class PipingMasterCatalog {
     {'nps': '1-1/2"', 'dn': 40, 'boreDia': 48.8, 'depth': 12.5, 'cToE': 43.5, 'minWall': 6.35, 'gap': 1.6},
     {'nps': '2"', 'dn': 50, 'boreDia': 61.2, 'depth': 16.0, 'cToE': 47.5, 'minWall': 6.93, 'gap': 1.6},
     {'nps': '3"', 'dn': 80, 'boreDia': 89.8, 'depth': 16.0, 'cToE': 78.0, 'minWall': 8.76, 'gap': 1.6},
+    {'nps': '4"', 'dn': 100, 'boreDia': 115.09, 'depth': 19.0, 'cToE': 92.0, 'minWall': 11.13, 'gap': 1.6},
   ];
 
   // ASME B16.11 / NPT Forged Threaded Class 3000
@@ -417,6 +611,7 @@ class PipingMasterCatalog {
     {'nps': '1-1/2"', 'dn': 40, 'cToE': 43.5, 'minThreadL2': 18.5, 'tpi': 11.5, 'pitch': 2.209, 'taper': '1:16'},
     {'nps': '2"', 'dn': 50, 'cToE': 52.5, 'minThreadL2': 19.5, 'tpi': 11.5, 'pitch': 2.209, 'taper': '1:16'},
     {'nps': '3"', 'dn': 80, 'cToE': 78.0, 'minThreadL2': 26.5, 'tpi': 8, 'pitch': 3.175, 'taper': '1:16'},
+    {'nps': '4"', 'dn': 100, 'cToE': 92.0, 'minThreadL2': 29.0, 'tpi': 8, 'pitch': 3.175, 'taper': '1:16'},
   ];
 
   // ASME B16.9 Concentric & Eccentric Reducers - Center-to-End Length (H)
@@ -451,6 +646,14 @@ class PipingMasterCatalog {
       }
     },
     {
+      'nps': '3/4"', 'dn': 20,
+      'classes': {
+        'Class 150': {'id': 35.4, 'od': 49.0, 'thk': 3.2},
+        'Class 300': {'id': 35.4, 'od': 49.0, 'thk': 3.2},
+        'Class 600': {'id': 35.1, 'od': 49.8, 'thk': 3.2},
+      }
+    },
+    {
       'nps': '1"', 'dn': 25,
       'classes': {
         'Class 150': {'id': 31.8, 'od': 47.8, 'thk': 3.2},
@@ -459,6 +662,14 @@ class PipingMasterCatalog {
         'Class 900': {'id': 31.8, 'od': 47.8, 'thk': 3.2},
         'Class 1500': {'id': 31.8, 'od': 47.8, 'thk': 3.2},
         'Class 2500': {'id': 31.8, 'od': 47.8, 'thk': 3.2},
+      }
+    },
+    {
+      'nps': '1-1/2"', 'dn': 40,
+      'classes': {
+        'Class 150': {'id': 57.5, 'od': 72.6, 'thk': 3.2},
+        'Class 300': {'id': 57.5, 'od': 72.6, 'thk': 3.2},
+        'Class 600': {'id': 57.0, 'od': 73.4, 'thk': 3.2},
       }
     },
     {
@@ -473,6 +684,15 @@ class PipingMasterCatalog {
       }
     },
     {
+      'nps': '3"', 'dn': 80,
+      'classes': {
+        'Class 150': {'id': 99.2, 'od': 117.2, 'thk': 3.2},
+        'Class 300': {'id': 99.2, 'od': 117.2, 'thk': 3.2},
+        'Class 600': {'id': 98.3, 'od': 117.8, 'thk': 3.2},
+        'Class 900': {'id': 97.4, 'od': 118.7, 'thk': 3.2},
+      }
+    },
+    {
       'nps': '4"', 'dn': 100,
       'classes': {
         'Class 150': {'id': 127.0, 'od': 149.4, 'thk': 3.2},
@@ -481,6 +701,24 @@ class PipingMasterCatalog {
         'Class 900': {'id': 120.7, 'od': 149.4, 'thk': 3.2},
         'Class 1500': {'id': 117.6, 'od': 149.4, 'thk': 3.2},
         'Class 2500': {'id': 117.6, 'od': 149.4, 'thk': 3.2},
+      }
+    },
+    {
+      'nps': '5"', 'dn': 125,
+      'classes': {
+        'Class 150': {'id': 152.9, 'od': 174.7, 'thk': 3.2},
+        'Class 300': {'id': 152.9, 'od': 174.7, 'thk': 3.2},
+        'Class 600': {'id': 151.5, 'od': 175.0, 'thk': 3.2},
+        'Class 900': {'id': 150.1, 'od': 175.8, 'thk': 3.2},
+      }
+    },
+    {
+      'nps': '6"', 'dn': 150,
+      'classes': {
+        'Class 150': {'id': 180.5, 'od': 204.2, 'thk': 3.2},
+        'Class 300': {'id': 180.5, 'od': 204.2, 'thk': 3.2},
+        'Class 600': {'id': 178.8, 'od': 204.4, 'thk': 3.2},
+        'Class 900': {'id': 177.1, 'od': 205.1, 'thk': 3.2},
       }
     },
     {
@@ -495,6 +733,15 @@ class PipingMasterCatalog {
       }
     },
     {
+      'nps': '10"', 'dn': 250,
+      'classes': {
+        'Class 150': {'id': 287.9, 'od': 319.1, 'thk': 3.2},
+        'Class 300': {'id': 287.9, 'od': 319.1, 'thk': 3.2},
+        'Class 600': {'id': 285.2, 'od': 318.9, 'thk': 3.2},
+        'Class 900': {'id': 282.4, 'od': 319.2, 'thk': 3.2},
+      }
+    },
+    {
       'nps': '12"', 'dn': 300,
       'classes': {
         'Class 150': {'id': 339.9, 'od': 374.7, 'thk': 3.2},
@@ -503,6 +750,46 @@ class PipingMasterCatalog {
         'Class 900': {'id': 323.9, 'od': 368.3, 'thk': 3.2},
         'Class 1500': {'id': 323.9, 'od': 368.3, 'thk': 3.2},
         'Class 2500': {'id': 317.5, 'od': 368.3, 'thk': 3.2},
+      }
+    },
+    {
+      'nps': '14"', 'dn': 350,
+      'classes': {
+        'Class 150': {'id': 372.4, 'od': 409.5, 'thk': 3.2},
+        'Class 300': {'id': 372.4, 'od': 409.5, 'thk': 3.2},
+        'Class 600': {'id': 368.8, 'od': 408.8, 'thk': 3.2},
+      }
+    },
+    {
+      'nps': '16"', 'dn': 400,
+      'classes': {
+        'Class 150': {'id': 424.5, 'od': 465.2, 'thk': 3.2},
+        'Class 300': {'id': 424.5, 'od': 465.2, 'thk': 3.2},
+        'Class 600': {'id': 420.4, 'od': 464.3, 'thk': 3.2},
+      }
+    },
+    {
+      'nps': '18"', 'dn': 450,
+      'classes': {
+        'Class 150': {'id': 476.5, 'od': 520.8, 'thk': 3.2},
+        'Class 300': {'id': 476.5, 'od': 520.8, 'thk': 3.2},
+        'Class 600': {'id': 471.9, 'od': 519.7, 'thk': 3.2},
+      }
+    },
+    {
+      'nps': '20"', 'dn': 500,
+      'classes': {
+        'Class 150': {'id': 528.6, 'od': 576.5, 'thk': 3.2},
+        'Class 300': {'id': 528.6, 'od': 576.5, 'thk': 3.2},
+        'Class 600': {'id': 523.5, 'od': 575.3, 'thk': 3.2},
+      }
+    },
+    {
+      'nps': '24"', 'dn': 600,
+      'classes': {
+        'Class 150': {'id': 632.7, 'od': 687.9, 'thk': 3.2},
+        'Class 300': {'id': 632.7, 'od': 687.9, 'thk': 3.2},
+        'Class 600': {'id': 626.6, 'od': 686.2, 'thk': 3.2},
       }
     },
   ];
@@ -519,11 +806,27 @@ class PipingMasterCatalog {
       }
     },
     {
+      'nps': '3/4"', 'dn': 20,
+      'classes': {
+        'Class 150': {'gateFtf': 119.0, 'ballFtf': 119.0, 'checkFtf': 119.0},
+        'Class 300': {'gateFtf': 154.0, 'ballFtf': 154.0, 'checkFtf': 162.0},
+        'Class 600': {'gateFtf': 193.0, 'ballFtf': 193.0, 'checkFtf': 193.0},
+      }
+    },
+    {
       'nps': '1"', 'dn': 25,
       'classes': {
         'Class 150': {'gateFtf': 127.0, 'ballFtf': 127.0, 'checkFtf': 127.0},
         'Class 300': {'gateFtf': 165.0, 'ballFtf': 165.0, 'checkFtf': 216.0},
         'Class 600': {'gateFtf': 216.0, 'ballFtf': 216.0, 'checkFtf': 216.0},
+      }
+    },
+    {
+      'nps': '1-1/2"', 'dn': 40,
+      'classes': {
+        'Class 150': {'gateFtf': 155.0, 'ballFtf': 155.0, 'checkFtf': 155.0},
+        'Class 300': {'gateFtf': 193.0, 'ballFtf': 193.0, 'checkFtf': 203.0},
+        'Class 600': {'gateFtf': 258.0, 'ballFtf': 258.0, 'checkFtf': 258.0},
       }
     },
     {
@@ -535,11 +838,35 @@ class PipingMasterCatalog {
       }
     },
     {
+      'nps': '3"', 'dn': 80,
+      'classes': {
+        'Class 150': {'gateFtf': 206.0, 'ballFtf': 206.0, 'checkFtf': 206.0},
+        'Class 300': {'gateFtf': 264.0, 'ballFtf': 264.0, 'checkFtf': 277.0},
+        'Class 600': {'gateFtf': 367.0, 'ballFtf': 367.0, 'checkFtf': 367.0},
+      }
+    },
+    {
       'nps': '4"', 'dn': 100,
       'classes': {
         'Class 150': {'gateFtf': 229.0, 'ballFtf': 229.0, 'checkFtf': 229.0},
         'Class 300': {'gateFtf': 305.0, 'ballFtf': 305.0, 'checkFtf': 356.0},
         'Class 600': {'gateFtf': 432.0, 'ballFtf': 432.0, 'checkFtf': 432.0},
+      }
+    },
+    {
+      'nps': '5"', 'dn': 125,
+      'classes': {
+        'Class 150': {'gateFtf': 248.0, 'ballFtf': 248.0, 'checkFtf': 248.0},
+        'Class 300': {'gateFtf': 338.0, 'ballFtf': 338.0, 'checkFtf': 355.0},
+        'Class 600': {'gateFtf': 495.0, 'ballFtf': 495.0, 'checkFtf': 495.0},
+      }
+    },
+    {
+      'nps': '6"', 'dn': 150,
+      'classes': {
+        'Class 150': {'gateFtf': 264.0, 'ballFtf': 264.0, 'checkFtf': 264.0},
+        'Class 300': {'gateFtf': 367.0, 'ballFtf': 367.0, 'checkFtf': 385.0},
+        'Class 600': {'gateFtf': 554.0, 'ballFtf': 554.0, 'checkFtf': 554.0},
       }
     },
     {
@@ -551,11 +878,59 @@ class PipingMasterCatalog {
       }
     },
     {
+      'nps': '10"', 'dn': 250,
+      'classes': {
+        'Class 150': {'gateFtf': 326.0, 'ballFtf': 326.0, 'checkFtf': 326.0},
+        'Class 300': {'gateFtf': 463.0, 'ballFtf': 463.0, 'checkFtf': 486.0},
+        'Class 600': {'gateFtf': 753.0, 'ballFtf': 753.0, 'checkFtf': 753.0},
+      }
+    },
+    {
       'nps': '12"', 'dn': 300,
       'classes': {
         'Class 150': {'gateFtf': 356.0, 'ballFtf': 356.0, 'checkFtf': 356.0},
         'Class 300': {'gateFtf': 502.0, 'ballFtf': 502.0, 'checkFtf': 711.0},
         'Class 600': {'gateFtf': 838.0, 'ballFtf': 838.0, 'checkFtf': 838.0},
+      }
+    },
+    {
+      'nps': '14"', 'dn': 350,
+      'classes': {
+        'Class 150': {'gateFtf': 384.0, 'ballFtf': 384.0, 'checkFtf': 384.0},
+        'Class 300': {'gateFtf': 538.0, 'ballFtf': 538.0, 'checkFtf': 565.0},
+        'Class 600': {'gateFtf': 918.0, 'ballFtf': 918.0, 'checkFtf': 918.0},
+      }
+    },
+    {
+      'nps': '16"', 'dn': 400,
+      'classes': {
+        'Class 150': {'gateFtf': 410.0, 'ballFtf': 410.0, 'checkFtf': 410.0},
+        'Class 300': {'gateFtf': 571.0, 'ballFtf': 571.0, 'checkFtf': 600.0},
+        'Class 600': {'gateFtf': 993.0, 'ballFtf': 993.0, 'checkFtf': 993.0},
+      }
+    },
+    {
+      'nps': '18"', 'dn': 450,
+      'classes': {
+        'Class 150': {'gateFtf': 434.0, 'ballFtf': 434.0, 'checkFtf': 434.0},
+        'Class 300': {'gateFtf': 601.0, 'ballFtf': 601.0, 'checkFtf': 631.0},
+        'Class 600': {'gateFtf': 1064.0, 'ballFtf': 1064.0, 'checkFtf': 1064.0},
+      }
+    },
+    {
+      'nps': '20"', 'dn': 500,
+      'classes': {
+        'Class 150': {'gateFtf': 457.0, 'ballFtf': 457.0, 'checkFtf': 457.0},
+        'Class 300': {'gateFtf': 630.0, 'ballFtf': 630.0, 'checkFtf': 662.0},
+        'Class 600': {'gateFtf': 1132.0, 'ballFtf': 1132.0, 'checkFtf': 1132.0},
+      }
+    },
+    {
+      'nps': '24"', 'dn': 600,
+      'classes': {
+        'Class 150': {'gateFtf': 500.0, 'ballFtf': 500.0, 'checkFtf': 500.0},
+        'Class 300': {'gateFtf': 684.0, 'ballFtf': 684.0, 'checkFtf': 718.0},
+        'Class 600': {'gateFtf': 1260.0, 'ballFtf': 1260.0, 'checkFtf': 1260.0},
       }
     },
   ];
@@ -573,6 +948,11 @@ class PipingMasterCatalog {
     {'nps': '8"', 'dn': 200, 'teeCtoE': 178.0},
     {'nps': '10"', 'dn': 250, 'teeCtoE': 216.0},
     {'nps': '12"', 'dn': 300, 'teeCtoE': 254.0},
+    {'nps': '14"', 'dn': 350, 'teeCtoE': 292.0},
+    {'nps': '16"', 'dn': 400, 'teeCtoE': 330.0},
+    {'nps': '18"', 'dn': 450, 'teeCtoE': 368.0},
+    {'nps': '20"', 'dn': 500, 'teeCtoE': 406.0},
+    {'nps': '24"', 'dn': 600, 'teeCtoE': 482.0},
   ];
 
   // ASME B16.9 Butt-Weld Elbows - Center-to-End by pattern (90 LR / 90 SR / 45)
@@ -588,6 +968,11 @@ class PipingMasterCatalog {
     {'nps': '8"', 'dn': 200, 'angles': {'90° Long Radius': 305.0, '90° Short Radius': 203.0, '45°': 127.0}},
     {'nps': '10"', 'dn': 250, 'angles': {'90° Long Radius': 381.0, '90° Short Radius': 254.0, '45°': 159.0}},
     {'nps': '12"', 'dn': 300, 'angles': {'90° Long Radius': 457.0, '90° Short Radius': 305.0, '45°': 190.0}},
+    {'nps': '14"', 'dn': 350, 'angles': {'90° Long Radius': 533.0, '90° Short Radius': 356.0, '45°': 222.0}},
+    {'nps': '16"', 'dn': 400, 'angles': {'90° Long Radius': 610.0, '90° Short Radius': 406.0, '45°': 254.0}},
+    {'nps': '18"', 'dn': 450, 'angles': {'90° Long Radius': 686.0, '90° Short Radius': 457.0, '45°': 286.0}},
+    {'nps': '20"', 'dn': 500, 'angles': {'90° Long Radius': 762.0, '90° Short Radius': 508.0, '45°': 318.0}},
+    {'nps': '24"', 'dn': 600, 'angles': {'90° Long Radius': 914.0, '90° Short Radius': 610.0, '45°': 381.0}},
   ];
 
   // ASME B16.9 Butt-Weld Caps - Length (E)
@@ -603,6 +988,11 @@ class PipingMasterCatalog {
     {'nps': '8"', 'dn': 200, 'capLen': 102.0},
     {'nps': '10"', 'dn': 250, 'capLen': 127.0},
     {'nps': '12"', 'dn': 300, 'capLen': 152.0},
+    {'nps': '14"', 'dn': 350, 'capLen': 177.0},
+    {'nps': '16"', 'dn': 400, 'capLen': 202.0},
+    {'nps': '18"', 'dn': 450, 'capLen': 227.0},
+    {'nps': '20"', 'dn': 500, 'capLen': 252.0},
+    {'nps': '24"', 'dn': 600, 'capLen': 302.0},
   ];
 
   // MSS SP-97 Weldolets, size-on-size, Standard Weight - Height (A, from run pipe OD to top face)
@@ -621,6 +1011,8 @@ class PipingMasterCatalog {
     {'nps': '16"', 'dn': 400, 'height': 93.66},
     {'nps': '20"', 'dn': 500, 'height': 117.48},
     {'nps': '24"', 'dn': 600, 'height': 136.53},
+    {'nps': '30"', 'dn': 750, 'height': 165.10},
+    {'nps': '36"', 'dn': 900, 'height': 193.68},
   ];
 
   // MSS SP-97 Sockolets, size-on-size, Class 3000 - Height (A) and socket depth (E)

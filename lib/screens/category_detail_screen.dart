@@ -72,6 +72,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
       backgroundColor: const Color(0xFF000000),
       navigationBar: CupertinoNavigationBar(
         backgroundColor: const Color(0xF0161618),
+        border: Border(bottom: BorderSide(color: _meta.color.withOpacity(0.25), width: 0.6)),
         middle: Text(_meta.label),
       ),
       child: SafeArea(
@@ -97,22 +98,31 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   }
 
   Widget _buildStandardBadge() {
+    final Color c = _meta.color;
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           decoration: BoxDecoration(
-            color: const Color(0xFF1C1C1E),
+            color: c.withOpacity(0.12),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFF2C2C2E)),
+            border: Border.all(color: c.withOpacity(0.30)),
           ),
           child: Row(
             children: [
-              Icon(_meta.icon, color: const Color(0xFF0A84FF), size: 12),
-              const SizedBox(width: 5),
-              Text(_meta.standard, style: const TextStyle(fontSize: 10, color: Color(0xFF0A84FF), fontWeight: FontWeight.bold)),
+              Icon(_meta.icon, color: c, size: 13),
+              const SizedBox(width: 6),
+              Text(_meta.standard, style: TextStyle(fontSize: 11, color: c, fontWeight: FontWeight.w700, letterSpacing: 0.1)),
             ],
           ),
+        ),
+        const Spacer(),
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: c, shape: BoxShape.circle, boxShadow: [
+            BoxShadow(color: c.withOpacity(0.6), blurRadius: 6, spreadRadius: 1),
+          ]),
         ),
       ],
     );
@@ -201,8 +211,9 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 14),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: isSel ? const Color(0xFF0A84FF) : const Color(0xFF2C2C2E),
+                color: isSel ? _meta.color : const Color(0xFF2C2C2E),
                 borderRadius: BorderRadius.circular(8),
+                boxShadow: isSel ? [BoxShadow(color: _meta.color.withOpacity(0.45), blurRadius: 8, offset: const Offset(0, 2))] : null,
               ),
               child: Text(opts[i], style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: isSel ? CupertinoColors.white : const Color(0xFF8E8E93))),
             ),
@@ -213,21 +224,26 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   }
 
   Widget _buildSchematicCard(Map<String, dynamic> item) {
+    final Color c = _meta.color;
     return Container(
       height: 210,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFF161618),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [const Color(0xFF17171A), Color.lerp(const Color(0xFF161618), c, 0.04)!],
+        ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2C2C2E)),
+        border: Border.all(color: c.withOpacity(0.18)),
       ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text('CROSS-SECTION ENGINEERING BLUEPRINT', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF8E8E93), letterSpacing: 0.6)),
-              Text('CAD VECTOR', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFFF9F0A))),
+            children: [
+              const Text('CROSS-SECTION ENGINEERING BLUEPRINT', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF8E8E93), letterSpacing: 0.6)),
+              Text('CAD VECTOR', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: c)),
             ],
           ),
           Expanded(
@@ -246,7 +262,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   Widget _buildTabSwitcher() {
     return CupertinoSlidingSegmentedControl<int>(
       backgroundColor: const Color(0xFF1C1C1E),
-      thumbColor: const Color(0xFF2C2C2E),
+      thumbColor: Color.lerp(const Color(0xFF2C2C2E), _meta.color, 0.22)!,
       groupValue: _activeTab,
       children: const {
         0: Padding(padding: EdgeInsets.symmetric(horizontal: 6, vertical: 6), child: Text('Dimensions', style: TextStyle(fontSize: 11, color: CupertinoColors.white))),

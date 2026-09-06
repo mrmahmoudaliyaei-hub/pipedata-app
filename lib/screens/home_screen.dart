@@ -106,10 +106,20 @@ class _HomeScreenState extends State<HomeScreen> {
     for (final group in CategoryRegistry.groups) {
       slivers.add(SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 18, 16, 8),
-          child: Text(
-            group.title.toUpperCase(),
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF8E8E93), letterSpacing: 0.4),
+          padding: const EdgeInsets.fromLTRB(18, 22, 16, 10),
+          child: Row(
+            children: [
+              Container(
+                width: 4,
+                height: 14,
+                decoration: BoxDecoration(color: group.color, borderRadius: BorderRadius.circular(2)),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                group.title.toUpperCase(),
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF8E8E93), letterSpacing: 0.6),
+              ),
+            ],
           ),
         ),
       ));
