@@ -19,6 +19,12 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   MaterialGrade _selectedMaterial = MaterialGrade.a106B;
   int _activeTab = 0;
 
+  // Valve-only: which body type (Gate/Globe/Ball/Swing Check) is selected.
+  // Each type has its own face-to-face length per pressure class, so valves
+  // need this second, independent selector alongside the usual class chips.
+  static const List<String> _valveTypes = ['Gate Valve', 'Globe Valve', 'Ball Valve', 'Swing Check Valve'];
+  String _valveType = 'Gate Valve';
+
   List<Map<String, dynamic>> get _dataset => _meta.dataset();
 
   @override
@@ -37,7 +43,9 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
         if (!opts.contains(_subSelection)) _subSelection = opts.contains('Sch 40 (STD)') ? 'Sch 40 (STD)' : opts.first;
         break;
       case SubOptionKind.classes:
-        final opts = (item['classes'] as Map<String, dynamic>).keys.toList();
+        final opts = _meta.category == ComponentCategory.valve
+            ? ((item['types'] as Map<String, dynamic>)[_valveType] as Map<String, dynamic>).keys.toList()
+            : (item['classes'] as Map<String, dynamic>).keys.toList();
         if (!opts.contains(_subSelection)) _subSelection = opts.contains('Class 150') ? 'Class 150' : opts.first;
         break;
       case SubOptionKind.lengths:
@@ -84,6 +92,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
             const SizedBox(height: 10),
             if (_dataset.length > 6) _buildSizeSearch(),
             _buildSizeChips(),
+            if (_meta.category == ComponentCategory.valve) _buildValveTypeChips(item),
             if (_meta.subOptionKind != SubOptionKind.none) _buildSubOptionChips(item),
             const SizedBox(height: 8),
             _buildSchematicCard(item),
@@ -178,6 +187,52 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
     );
   }
 
+  Widget _buildValveTypeChips(Map<String, dynamic> item) {
+    const icons = {
+      'Gate Valve': CupertinoIcons.arrow_up_down,
+      'Globe Valve': CupertinoIcons.circle_grid_hex,
+      'Ball Valve': CupertinoIcons.circle_filled,
+      'Swing Check Valve': CupertinoIcons.arrow_right,
+    };
+    return Container(
+      height: 36,
+      margin: const EdgeInsets.only(bottom: 2),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: _valveTypes.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, i) {
+          final t = _valveTypes[i];
+          final isSel = _valveType == t;
+          return GestureDetector(
+            onTap: () => setState(() {
+              _valveType = t;
+              _syncSubSelection();
+            }),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 140),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: isSel ? _meta.color.withOpacity(0.18) : const Color(0xFF1C1C1E),
+                borderRadius: BorderRadius.circular(9),
+                border: Border.all(color: isSel ? _meta.color : const Color(0xFF2C2C2E)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icons[t], size: 13, color: isSel ? _meta.color : const Color(0xFF8E8E93)),
+                  const SizedBox(width: 6),
+                  Text(t, style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: isSel ? CupertinoColors.white : const Color(0xFF8E8E93))),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   Widget _buildSubOptionChips(Map<String, dynamic> item) {
     List<String> opts = [];
     switch (_meta.subOptionKind) {
@@ -185,7 +240,9 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
         opts = (item['schedules'] as Map<String, dynamic>).keys.toList();
         break;
       case SubOptionKind.classes:
-        opts = (item['classes'] as Map<String, dynamic>).keys.toList();
+        opts = _meta.category == ComponentCategory.valve
+            ? ((item['types'] as Map<String, dynamic>)[_valveType] as Map<String, dynamic>).keys.toList()
+            : (item['classes'] as Map<String, dynamic>).keys.toList();
         break;
       case SubOptionKind.lengths:
         opts = (item['lengths'] as Map<String, dynamic>).keys.toList();
@@ -250,7 +307,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
             child: Center(
               child: CustomPaint(
                 size: const Size(260, 150),
-                painter: VectorBlueprintPainter(category: _meta.category, data: item, subType: _subSelection),
+                painter: VectorBlueprintPainter(category: _meta.category, data: item, subType: _subSelection, accentColor: c, valveType: _valveType),
               ),
             ),
           ),
@@ -355,13 +412,16 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
         d['Standard'] = 'ASME B16.20';
         break;
       case ComponentCategory.valve:
-        final clss = item['classes'] as Map<String, dynamic>;
-        final v = clss[_subSelection] ?? clss.values.first;
+        final types = item['types'] as Map<String, dynamic>;
+        final classesForType = types[_valveType] as Map<String, dynamic>;
+        final v = classesForType[_subSelection] ?? classesForType.values.first;
+        d['Valve Type'] = _valveType;
         d['Pressure Class'] = _subSelection;
-        d['Gate Valve Face-to-Face'] = '${v['gateFtf']} mm';
-        d['Ball Valve Face-to-Face (Short Pattern)'] = '${v['ballFtf']} mm';
-        d['Swing Check Valve Face-to-Face'] = '${v['checkFtf']} mm';
-        d['End Connection'] = 'Raised Face Flanged (RF)';
+        d['Face-to-Face (FtF)'] = '${v['ftf']} mm';
+        d['End Connection'] = (v['endConn'] as String?) ?? 'Raised Face Flanged (RF)';
+        if (_valveType == 'Globe Valve' || _valveType == 'Swing Check Valve') {
+          d['Note'] = 'Globe & Swing Check share the ASME B16.10 long-pattern length at this size/class';
+        }
         d['Standard'] = 'ASME B16.10';
         break;
       case ComponentCategory.weldolet:

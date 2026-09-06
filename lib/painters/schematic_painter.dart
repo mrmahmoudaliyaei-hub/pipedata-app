@@ -2,15 +2,26 @@ import 'dart:math' as math;
 import 'package:flutter/cupertino.dart';
 import '../core/models.dart';
 
+/// Renders a CAD-style cross-section/elevation schematic for a component.
+///
+/// Every shape is drawn as a filled, shaded body (a light-to-dark metal
+/// gradient tinted with [accentColor]) with a bold outline on top, the way a
+/// real mechanical/piping drawing reads solid components rather than pure
+/// wireframe — plus dimension lines, leaders and (for valves) the standard
+/// P&ID body symbol for the selected valve type.
 class VectorBlueprintPainter extends CustomPainter {
   final ComponentCategory category;
   final Map<String, dynamic> data;
   final String subType;
+  final Color accentColor;
+  final String valveType;
 
   VectorBlueprintPainter({
     required this.category,
     required this.data,
     required this.subType,
+    this.accentColor = const Color(0xFF0A84FF),
+    this.valveType = 'Gate Valve',
   });
 
   @override
@@ -19,33 +30,51 @@ class VectorBlueprintPainter extends CustomPainter {
 
     final lineOutline = Paint()
       ..color = const Color(0xFFF2F2F7)
-      ..strokeWidth = 2.0
+      ..strokeWidth = 2.75
+      ..strokeJoin = StrokeJoin.round
+      ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
     final lineCenter = Paint()
-      ..color = const Color(0x66FFFFFF)
-      ..strokeWidth = 1.0
+      ..color = const Color(0x77FFFFFF)
+      ..strokeWidth = 1.1
       ..style = PaintingStyle.stroke;
 
     final lineDim = Paint()
       ..color = const Color(0xFF0A84FF)
-      ..strokeWidth = 1.2
+      ..strokeWidth = 1.6
       ..style = PaintingStyle.stroke;
 
     final lineAccent = Paint()
       ..color = const Color(0xFFFF9F0A)
-      ..strokeWidth = 1.5
+      ..strokeWidth = 1.8
       ..style = PaintingStyle.stroke;
 
     final lineWeld = Paint()
       ..color = const Color(0xFF30D158)
-      ..strokeWidth = 1.5
+      ..strokeWidth = 1.8
       ..style = PaintingStyle.stroke;
 
     final linePipeline = Paint()
       ..color = const Color(0xFFFF453A)
-      ..strokeWidth = 1.5
+      ..strokeWidth = 1.8
       ..style = PaintingStyle.stroke;
+
+    // Shared "solid metal" body fill: a light-to-dark gradient tinted by the
+    // category's accent color, so every body reads as a shaded solid rather
+    // than a hollow line-drawing.
+    Paint bodyFill(Rect bounds, {double lightness = 0.30}) {
+      return Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.lerp(const Color(0xFF48484C), accentColor, lightness)!,
+            const Color(0xFF201F22),
+          ],
+        ).createShader(bounds)
+        ..style = PaintingStyle.fill;
+    }
 
     switch (category) {
       case ComponentCategory.pipe:
@@ -59,14 +88,15 @@ class VectorBlueprintPainter extends CustomPainter {
         final double rOut = size.height * 0.40;
         final double rIn = rOut * (1.0 - (2.0 * thk / od)).clamp(0.20, 0.94);
 
-        canvas.drawCircle(center, rOut, lineOutline);
-        canvas.drawCircle(center, rIn, lineOutline);
-
-        final hatch = Path()
+        final wallRing = Path()
           ..addOval(Rect.fromCircle(center: center, radius: rOut))
           ..addOval(Rect.fromCircle(center: center, radius: rIn))
           ..fillType = PathFillType.evenOdd;
-        canvas.drawPath(hatch, Paint()..color = const Color(0x22FFFFFF));
+        canvas.drawPath(wallRing, bodyFill(Rect.fromCircle(center: center, radius: rOut), lightness: 0.35));
+        _drawRadialHatch(canvas, center, rIn, rOut, accent.color.withOpacity(0.35));
+        canvas.drawCircle(center, rOut, lineOutline);
+        canvas.drawCircle(center, rIn, lineOutline);
+        canvas.drawCircle(center, rIn, Paint()..color = const Color(0xFF08080A));
 
         _drawCrosshairs(canvas, center, rOut + 16, lineCenter);
         _drawDimension(canvas, Offset(center.dx - rOut, center.dy), Offset(center.dx + rOut, center.dy), 'OD: ${od.toStringAsFixed(1)} mm', lineDim);
@@ -81,16 +111,22 @@ class VectorBlueprintPainter extends CustomPainter {
         final double rPcd = rFlange * 0.72;
         final double rBore = rFlange * 0.38;
 
+        final ring = Path()
+          ..addOval(Rect.fromCircle(center: center, radius: rFlange))
+          ..addOval(Rect.fromCircle(center: center, radius: rBore))
+          ..fillType = PathFillType.evenOdd;
+        canvas.drawPath(ring, bodyFill(Rect.fromCircle(center: center, radius: rFlange)));
         canvas.drawCircle(center, rFlange, lineOutline);
         canvas.drawCircle(center, rBore, lineOutline);
-        canvas.drawCircle(center, rPcd, Paint()..color = const Color(0x66FF9F0A)..strokeWidth = 1.0..style = PaintingStyle.stroke);
+        canvas.drawCircle(center, rBore, Paint()..color = const Color(0xFF08080A));
+        canvas.drawCircle(center, rPcd, Paint()..color = accentColor.withOpacity(0.55)..strokeWidth = 1.0..style = PaintingStyle.stroke);
 
         final int boltCount = flg['bolts'] as int;
         for (int i = 0; i < boltCount; i++) {
           final double angle = (i * 2 * math.pi) / boltCount;
           final boltPos = Offset(center.dx + rPcd * math.cos(angle), center.dy + rPcd * math.sin(angle));
-          canvas.drawCircle(boltPos, 5.0, Paint()..color = const Color(0xFF000000));
-          canvas.drawCircle(boltPos, 5.0, lineOutline);
+          canvas.drawCircle(boltPos, 5.2, Paint()..color = const Color(0xFF0B0B0D));
+          canvas.drawCircle(boltPos, 5.2, lineOutline..strokeWidth = 1.6);
           canvas.drawLine(Offset(boltPos.dx - 7, boltPos.dy), Offset(boltPos.dx + 7, boltPos.dy), lineCenter);
           canvas.drawLine(Offset(boltPos.dx, boltPos.dy - 7), Offset(boltPos.dx, boltPos.dy + 7), lineCenter);
         }
@@ -106,13 +142,15 @@ class VectorBlueprintPainter extends CustomPainter {
           ..lineTo(center.dx + 70, center.dy + 18)
           ..lineTo(center.dx - 70, center.dy + 18)
           ..close();
-        canvas.drawPath(runPath, lineOutline);
         final branchPath = Path()
           ..moveTo(center.dx - 18, center.dy - 18)
           ..lineTo(center.dx - 18, center.dy - 62)
           ..lineTo(center.dx + 18, center.dy - 62)
           ..lineTo(center.dx + 18, center.dy - 18)
           ..close();
+        final combined = Path.combine(PathOperation.union, runPath, branchPath);
+        canvas.drawPath(combined, bodyFill(Rect.fromLTRB(center.dx - 70, center.dy - 62, center.dx + 70, center.dy + 18)));
+        canvas.drawPath(runPath, lineOutline);
         canvas.drawPath(branchPath, lineOutline);
         canvas.drawLine(Offset(center.dx - 70, center.dy), Offset(center.dx + 70, center.dy), lineCenter);
         canvas.drawLine(Offset(center.dx, center.dy - 62), Offset(center.dx, center.dy + 18), lineCenter);
@@ -125,14 +163,34 @@ class VectorBlueprintPainter extends CustomPainter {
         final angles = data['angles'] as Map<String, dynamic>;
         final double cToE = ((angles[subType] ?? angles.values.first) as num).toDouble();
         final bool isFortyFive = subType == '45°';
-        final path = Path();
-        path.moveTo(center.dx - 65, center.dy + 65);
-        if (isFortyFive) {
-          path.quadraticBezierTo(center.dx - 65, center.dy + 10, center.dx + 20, center.dy - 30);
-        } else {
-          path.quadraticBezierTo(center.dx - 65, center.dy - 65, center.dx + 65, center.dy - 65);
-        }
-        canvas.drawPath(path, lineOutline);
+
+        final Offset outerStart = Offset(center.dx - 65 - 16, center.dy + 65);
+        final Offset innerStart = Offset(center.dx - 65 + 16, center.dy + 65);
+        final Offset outerEnd = isFortyFive ? Offset(center.dx + 20 + 11, center.dy - 30 - 11) : Offset(center.dx + 65, center.dy - 65 - 16);
+        final Offset innerEnd = isFortyFive ? Offset(center.dx + 20 - 11, center.dy - 30 + 11) : Offset(center.dx + 65, center.dy - 65 + 16);
+        final Offset outerCtrl = isFortyFive ? Offset(center.dx - 65 - 16, center.dy + 4) : Offset(center.dx - 65 - 16, center.dy - 65 - 16);
+        final Offset innerCtrl = isFortyFive ? Offset(center.dx - 65 + 16, center.dy + 16) : Offset(center.dx - 65 + 16, center.dy - 65 + 16);
+
+        final outerPath = Path()
+          ..moveTo(outerStart.dx, outerStart.dy)
+          ..quadraticBezierTo(outerCtrl.dx, outerCtrl.dy, outerEnd.dx, outerEnd.dy);
+        final innerPath = Path()
+          ..moveTo(innerStart.dx, innerStart.dy)
+          ..quadraticBezierTo(innerCtrl.dx, innerCtrl.dy, innerEnd.dx, innerEnd.dy);
+
+        // A single closed band: out along the outer curve, across the end
+        // face, back along the inner curve, across the start face.
+        final bandPath = Path()
+          ..moveTo(outerStart.dx, outerStart.dy)
+          ..quadraticBezierTo(outerCtrl.dx, outerCtrl.dy, outerEnd.dx, outerEnd.dy)
+          ..lineTo(innerEnd.dx, innerEnd.dy)
+          ..quadraticBezierTo(innerCtrl.dx, innerCtrl.dy, innerStart.dx, innerStart.dy)
+          ..close();
+        canvas.drawPath(bandPath, bodyFill(Rect.fromLTWH(center.dx - 90, center.dy - 100, 180, 180)));
+        canvas.drawPath(outerPath, lineOutline);
+        canvas.drawPath(innerPath, lineOutline);
+        canvas.drawLine(outerStart, innerStart, lineOutline);
+        canvas.drawLine(outerEnd, innerEnd, lineOutline);
 
         final clPath = Path();
         clPath.moveTo(center.dx - 45, center.dy + 65);
@@ -154,8 +212,10 @@ class VectorBlueprintPainter extends CustomPainter {
           ..lineTo(center.dx - 20, center.dy - 20)
           ..quadraticBezierTo(center.dx - 20, center.dy - 55, center.dx + 15, center.dy - 55)
           ..quadraticBezierTo(center.dx + 50, center.dy - 55, center.dx + 50, center.dy - 20)
-          ..lineTo(center.dx + 50, center.dy + 55);
-        canvas.drawPath(capPath, lineOutline);
+          ..lineTo(center.dx + 50, center.dy + 55)
+          ..close();
+        canvas.drawPath(capPath, bodyFill(Rect.fromLTRB(center.dx - 20, center.dy - 55, center.dx + 50, center.dy + 55)));
+        canvas.drawPath(capPath, lineOutline..style = PaintingStyle.stroke);
         canvas.drawLine(Offset(center.dx - 20, center.dy + 55), Offset(center.dx + 50, center.dy + 55), lineOutline);
         canvas.drawLine(Offset(center.dx + 15, center.dy - 55), Offset(center.dx + 15, center.dy + 60), lineCenter);
 
@@ -165,7 +225,10 @@ class VectorBlueprintPainter extends CustomPainter {
 
       case ComponentCategory.socketWeld:
         final double depth = ((data['depth'] ?? 9.5) as num).toDouble();
-        canvas.drawRect(Rect.fromCenter(center: center, width: 140, height: 80), lineOutline);
+        final outerRect = Rect.fromCenter(center: center, width: 140, height: 80);
+        canvas.drawRect(outerRect, bodyFill(outerRect));
+        canvas.drawRect(outerRect, lineOutline);
+        canvas.drawRect(Rect.fromCenter(center: Offset(center.dx - 15, center.dy), width: 90, height: 50), Paint()..color = const Color(0xFF08080A));
         canvas.drawRect(Rect.fromCenter(center: Offset(center.dx - 15, center.dy), width: 90, height: 50), lineDim);
         canvas.drawRect(Rect.fromLTWH(center.dx + 30, center.dy - 25, 4, 50), Paint()..color = const Color(0xFF30D158));
 
@@ -175,6 +238,8 @@ class VectorBlueprintPainter extends CustomPainter {
 
       case ComponentCategory.threaded:
         final int tpi = data['tpi'] as int;
+        final bandRect = Rect.fromLTRB(center.dx - 65, center.dy - 22, center.dx + 65, center.dy - 6);
+        canvas.drawRect(bandRect, bodyFill(bandRect));
         final path = Path();
         path.moveTo(center.dx - 65, center.dy - 20);
         for (double x = -65; x <= 65; x += 12) {
@@ -200,6 +265,7 @@ class VectorBlueprintPainter extends CustomPainter {
           ..lineTo(center.dx + halfLen, center.dy + rSmall)
           ..lineTo(center.dx - halfLen, center.dy + rLarge)
           ..close();
+        canvas.drawPath(body, bodyFill(Rect.fromLTRB(center.dx - halfLen, center.dy - rLarge, center.dx + halfLen, center.dy + rLarge)));
         if (eccentric) {
           canvas.drawLine(Offset(center.dx - halfLen, center.dy + rLarge), Offset(center.dx + halfLen, center.dy + rSmall), lineCenter);
         }
@@ -222,12 +288,18 @@ class VectorBlueprintPainter extends CustomPainter {
         final double rOut = size.height * 0.40;
         final double rIn = rOut * (gId / gOd).clamp(0.15, 0.92);
 
+        final ring = Path()
+          ..addOval(Rect.fromCircle(center: center, radius: rOut))
+          ..addOval(Rect.fromCircle(center: center, radius: rIn))
+          ..fillType = PathFillType.evenOdd;
+        canvas.drawPath(ring, bodyFill(Rect.fromCircle(center: center, radius: rOut), lightness: 0.4));
         canvas.drawCircle(center, rOut, lineOutline);
         canvas.drawCircle(center, rIn, lineOutline);
+        canvas.drawCircle(center, rIn, Paint()..color = const Color(0xFF08080A));
 
         for (int i = 1; i <= 3; i++) {
           final double r = rIn + (rOut - rIn) * (i / 4.0);
-          canvas.drawCircle(center, r, Paint()..color = const Color(0x40FF9F0A)..strokeWidth = 0.8..style = PaintingStyle.stroke);
+          canvas.drawCircle(center, r, Paint()..color = accentColor.withOpacity(0.4)..strokeWidth = 0.9..style = PaintingStyle.stroke);
         }
 
         _drawCrosshairs(canvas, center, rIn * 0.6, lineCenter);
@@ -237,34 +309,13 @@ class VectorBlueprintPainter extends CustomPainter {
         break;
 
       case ComponentCategory.valve:
-        final classes = data['classes'] as Map<String, dynamic>;
-        final vv = classes[subType] ?? classes.values.first;
-        final double ftf = (vv['gateFtf'] as num).toDouble();
-
-        final double halfLen = 55.0;
-        final double bodyH = 46.0;
-        final double flangeH = 64.0;
-
-        final bodyPath = Path()
-          ..moveTo(center.dx - halfLen + 10, center.dy - bodyH / 2)
-          ..quadraticBezierTo(center.dx, center.dy - bodyH / 2 - 10, center.dx + halfLen - 10, center.dy - bodyH / 2)
-          ..lineTo(center.dx + halfLen - 10, center.dy + bodyH / 2)
-          ..quadraticBezierTo(center.dx, center.dy + bodyH / 2 + 10, center.dx - halfLen + 10, center.dy + bodyH / 2)
-          ..close();
-        canvas.drawPath(bodyPath, lineOutline);
-
-        canvas.drawLine(Offset(center.dx - halfLen, center.dy - flangeH / 2), Offset(center.dx - halfLen, center.dy + flangeH / 2), lineOutline);
-        canvas.drawLine(Offset(center.dx + halfLen, center.dy - flangeH / 2), Offset(center.dx + halfLen, center.dy + flangeH / 2), lineOutline);
-        canvas.drawLine(Offset(center.dx - halfLen - 6, center.dy - flangeH / 2), Offset(center.dx - halfLen - 6, center.dy + flangeH / 2), lineDim);
-        canvas.drawLine(Offset(center.dx + halfLen + 6, center.dy - flangeH / 2), Offset(center.dx + halfLen + 6, center.dy + flangeH / 2), lineDim);
-
-        canvas.drawLine(Offset(center.dx, center.dy - bodyH / 2 - 8), Offset(center.dx, center.dy - bodyH / 2 - 30), lineWeld);
-        canvas.drawCircle(Offset(center.dx, center.dy - bodyH / 2 - 38), 8.0, lineWeld);
-
-        canvas.drawLine(Offset(center.dx - halfLen - 6, center.dy), Offset(center.dx + halfLen + 6, center.dy), lineCenter);
-
-        _drawDimension(canvas, Offset(center.dx - halfLen - 6, center.dy + flangeH / 2 + 16), Offset(center.dx + halfLen + 6, center.dy + flangeH / 2 + 16), 'FtF (Gate): ${ftf.toStringAsFixed(0)} mm', lineDim);
-        _drawLeader(canvas, Offset(center.dx, center.dy - bodyH / 2 - 46), Offset(center.dx + 20, center.dy - bodyH / 2 - 70), 'ASME B16.10', lineAccent);
+        final types = data['types'] as Map<String, dynamic>;
+        final classesForType = (types[valveType] ?? types.values.first) as Map<String, dynamic>;
+        final vv = classesForType[subType] ?? classesForType.values.first;
+        final double ftf = (vv['ftf'] as num).toDouble();
+        _drawValveSymbol(canvas, center, valveType, bodyFill);
+        _drawDimension(canvas, Offset(center.dx - 70, center.dy + 70), Offset(center.dx + 70, center.dy + 70), 'FtF: ${ftf.toStringAsFixed(0)} mm', lineDim);
+        _drawLeader(canvas, Offset(center.dx + 55, center.dy - 20), Offset(center.dx + 85, center.dy - 50), 'ASME B16.10', lineAccent);
         break;
 
       case ComponentCategory.weldolet:
@@ -276,25 +327,24 @@ class VectorBlueprintPainter extends CustomPainter {
         final double stubW = 26.0;
         final double stubTop = center.dy - runH / 2 - 60;
 
-        // Run pipe (horizontal)
-        canvas.drawRect(Rect.fromCenter(center: Offset(center.dx, center.dy + 30), width: runHalfW * 2, height: runH), lineOutline);
+        final runRect = Rect.fromCenter(center: Offset(center.dx, center.dy + 30), width: runHalfW * 2, height: runH);
+        canvas.drawRect(runRect, bodyFill(runRect));
+        canvas.drawRect(runRect, lineOutline);
         canvas.drawLine(Offset(center.dx - runHalfW, center.dy + 30), Offset(center.dx + runHalfW, center.dy + 30), lineCenter);
 
-        // Outlet stub (vertical)
         final stubTopY = category == ComponentCategory.weldolet
             ? stubTop
             : (category == ComponentCategory.sockolet ? stubTop + 6 : stubTop + 10);
-        canvas.drawRect(Rect.fromLTRB(center.dx - stubW / 2, stubTopY, center.dx + stubW / 2, center.dy + 30 - runH / 2 + 2), lineOutline);
+        final stubRect = Rect.fromLTRB(center.dx - stubW / 2, stubTopY, center.dx + stubW / 2, center.dy + 30 - runH / 2 + 2);
+        canvas.drawRect(stubRect, bodyFill(stubRect, lightness: 0.4));
+        canvas.drawRect(stubRect, lineOutline);
         canvas.drawLine(Offset(center.dx, stubTopY - 4), Offset(center.dx, center.dy + 30 + runH / 2 - 4), lineCenter);
 
         if (category == ComponentCategory.weldolet) {
-          // Weld bevel at top face
           canvas.drawLine(Offset(center.dx - stubW / 2 - 3, stubTopY - 3), Offset(center.dx + stubW / 2 + 3, stubTopY - 3), lineWeld);
         } else if (category == ComponentCategory.sockolet) {
-          // Socket step
           canvas.drawRect(Rect.fromLTRB(center.dx - stubW / 2 - 4, stubTopY, center.dx + stubW / 2 + 4, stubTopY + 14), lineDim);
         } else {
-          // Thread ticks
           for (double y = stubTopY; y <= stubTopY + 20; y += 5) {
             canvas.drawLine(Offset(center.dx - stubW / 2 - 4, y), Offset(center.dx + stubW / 2 + 4, y), lineAccent);
           }
@@ -304,6 +354,143 @@ class VectorBlueprintPainter extends CustomPainter {
         _drawLeader(canvas, Offset(center.dx - runHalfW * 0.6, center.dy + 30), Offset(center.dx - runHalfW - 15, center.dy + 60), 'Run Pipe', lineAccent);
         _drawLeader(canvas, Offset(center.dx, stubTopY), Offset(center.dx + 40, stubTopY - 20), 'MSS SP-97', lineWeld);
         break;
+    }
+  }
+
+  /// Draws the standard P&ID-style body symbol for the given valve type:
+  /// Gate = bowtie wedge + handwheel stem; Globe = spherical body + baffle +
+  /// handwheel stem; Ball = bowtie inside a circular shell + lever handle;
+  /// Swing Check = a single directional wedge + hinge flap, no actuator.
+  void _drawValveSymbol(Canvas canvas, Offset center, String type, Paint Function(Rect, {double lightness}) bodyFill) {
+    final flangeOutline = Paint()
+      ..color = const Color(0xFFF2F2F7)
+      ..strokeWidth = 2.75
+      ..style = PaintingStyle.stroke;
+    final centerLine = Paint()
+      ..color = const Color(0x77FFFFFF)
+      ..strokeWidth = 1.1
+      ..style = PaintingStyle.stroke;
+    final metal = Paint()
+      ..color = const Color(0xFFD1D1D6)
+      ..style = PaintingStyle.fill;
+    final metalDark = Paint()
+      ..color = const Color(0xFF9B9BA1)
+      ..style = PaintingStyle.fill;
+
+    const double halfLen = 55.0;
+    const double flangeH = 66.0;
+    const double bodyR = 34.0;
+
+    void drawEndFlanges() {
+      canvas.drawLine(Offset(center.dx - halfLen, center.dy - flangeH / 2), Offset(center.dx - halfLen, center.dy + flangeH / 2), flangeOutline);
+      canvas.drawLine(Offset(center.dx + halfLen, center.dy - flangeH / 2), Offset(center.dx + halfLen, center.dy + flangeH / 2), flangeOutline);
+      canvas.drawRect(Rect.fromLTRB(center.dx - halfLen - 7, center.dy - flangeH / 2, center.dx - halfLen, center.dy + flangeH / 2), metalDark);
+      canvas.drawRect(Rect.fromLTRB(center.dx + halfLen, center.dy - flangeH / 2, center.dx + halfLen + 7, center.dy + flangeH / 2), metalDark);
+      canvas.drawLine(Offset(center.dx - halfLen - 6, center.dy - flangeH / 2), Offset(center.dx - halfLen - 6, center.dy + flangeH / 2), Paint()..color = accentColor..strokeWidth = 1.6);
+      canvas.drawLine(Offset(center.dx + halfLen + 6, center.dy - flangeH / 2), Offset(center.dx + halfLen + 6, center.dy + flangeH / 2), Paint()..color = accentColor..strokeWidth = 1.6);
+      canvas.drawLine(Offset(center.dx - halfLen - 6, center.dy), Offset(center.dx + halfLen + 6, center.dy), centerLine);
+    }
+
+    void drawHandwheelStem(double topY) {
+      canvas.drawLine(Offset(center.dx, topY), Offset(center.dx, topY - 26), Paint()..color = const Color(0xFF30D158)..strokeWidth = 3.0);
+      canvas.drawCircle(Offset(center.dx, topY - 34), 9.5, metal);
+      canvas.drawCircle(Offset(center.dx, topY - 34), 9.5, flangeOutline..strokeWidth = 2.0);
+      canvas.drawLine(Offset(center.dx - 9.5, topY - 34), Offset(center.dx + 9.5, topY - 34), Paint()..color = const Color(0xFF08080A)..strokeWidth = 1.4);
+      canvas.drawLine(Offset(center.dx, topY - 43.5), Offset(center.dx, topY - 24.5), Paint()..color = const Color(0xFF08080A)..strokeWidth = 1.4);
+    }
+
+    switch (type) {
+      case 'Gate Valve':
+        drawEndFlanges();
+        final bowtie = Path()
+          ..moveTo(center.dx - halfLen + 8, center.dy - bodyR)
+          ..lineTo(center.dx, center.dy)
+          ..lineTo(center.dx - halfLen + 8, center.dy + bodyR)
+          ..close()
+          ..moveTo(center.dx + halfLen - 8, center.dy - bodyR)
+          ..lineTo(center.dx, center.dy)
+          ..lineTo(center.dx + halfLen - 8, center.dy + bodyR)
+          ..close();
+        canvas.drawPath(bowtie, bodyFill(Rect.fromLTRB(center.dx - halfLen, center.dy - bodyR, center.dx + halfLen, center.dy + bodyR)));
+        canvas.drawPath(bowtie, flangeOutline);
+        drawHandwheelStem(center.dy - bodyR * 0.15);
+        break;
+
+      case 'Ball Valve':
+        drawEndFlanges();
+        final circleRect = Rect.fromCircle(center: center, radius: bodyR);
+        canvas.drawOval(circleRect, bodyFill(circleRect, lightness: 0.25));
+        canvas.drawOval(circleRect, flangeOutline);
+        final bowtie = Path()
+          ..moveTo(center.dx - bodyR * 0.72, center.dy - bodyR * 0.62)
+          ..lineTo(center.dx, center.dy)
+          ..lineTo(center.dx - bodyR * 0.72, center.dy + bodyR * 0.62)
+          ..close()
+          ..moveTo(center.dx + bodyR * 0.72, center.dy - bodyR * 0.62)
+          ..lineTo(center.dx, center.dy)
+          ..lineTo(center.dx + bodyR * 0.72, center.dy + bodyR * 0.62)
+          ..close();
+        canvas.drawPath(bowtie, metalDark);
+        canvas.drawPath(bowtie, flangeOutline..strokeWidth = 1.6);
+        // Lever handle (perpendicular to flow when open) instead of a handwheel.
+        canvas.drawLine(Offset(center.dx, center.dy - bodyR), Offset(center.dx, center.dy - bodyR - 24), Paint()..color = const Color(0xFF30D158)..strokeWidth = 3.2..strokeCap = StrokeCap.round);
+        canvas.drawLine(Offset(center.dx - 16, center.dy - bodyR - 24), Offset(center.dx + 16, center.dy - bodyR - 24), Paint()..color = const Color(0xFF30D158)..strokeWidth = 4.0..strokeCap = StrokeCap.round);
+        break;
+
+      case 'Globe Valve':
+        drawEndFlanges();
+        final circleRect = Rect.fromCircle(center: center, radius: bodyR);
+        canvas.drawOval(circleRect, bodyFill(circleRect, lightness: 0.3));
+        canvas.drawOval(circleRect, flangeOutline);
+        // Internal S-baffle showing the raised, perpendicular seat (the
+        // feature that distinguishes a globe body from a gate/ball body).
+        final baffle = Path()
+          ..moveTo(center.dx - bodyR + 6, center.dy)
+          ..quadraticBezierTo(center.dx - 6, center.dy, center.dx - 6, center.dy - bodyR * 0.55)
+          ..moveTo(center.dx + 6, center.dy + bodyR * 0.55)
+          ..quadraticBezierTo(center.dx + 6, center.dy, center.dx + bodyR - 6, center.dy);
+        canvas.drawPath(baffle, Paint()..color = const Color(0xFF08080A)..strokeWidth = 3.0..style = PaintingStyle.stroke);
+        drawHandwheelStem(center.dy - bodyR);
+        break;
+
+      case 'Swing Check Valve':
+        drawEndFlanges();
+        // Directional wedge (flow left-to-right) plus a hinge pin + flap arc
+        // — the standard "no actuator, one-way" check-valve symbol.
+        final wedge = Path()
+          ..moveTo(center.dx - halfLen + 10, center.dy - bodyR * 0.8)
+          ..lineTo(center.dx + halfLen - 14, center.dy)
+          ..lineTo(center.dx - halfLen + 10, center.dy + bodyR * 0.8)
+          ..close();
+        canvas.drawPath(wedge, bodyFill(Rect.fromLTRB(center.dx - halfLen, center.dy - bodyR, center.dx + halfLen, center.dy + bodyR)));
+        canvas.drawPath(wedge, flangeOutline);
+        canvas.drawCircle(Offset(center.dx - halfLen + 12, center.dy - bodyR * 0.55), 3.5, Paint()..color = const Color(0xFF08080A));
+        final flap = Path()
+          ..moveTo(center.dx - halfLen + 12, center.dy - bodyR * 0.55)
+          ..lineTo(center.dx + 6, center.dy - bodyR * 0.15);
+        canvas.drawPath(flap, Paint()..color = const Color(0xFF8E8E93)..strokeWidth = 2.4..style = PaintingStyle.stroke);
+        // Flow-direction arrow.
+        final arrowY = center.dy + bodyR + 14;
+        canvas.drawLine(Offset(center.dx - 22, arrowY), Offset(center.dx + 22, arrowY), Paint()..color = accentColor..strokeWidth = 2.0);
+        canvas.drawPath(
+          Path()
+            ..moveTo(center.dx + 22, arrowY)
+            ..lineTo(center.dx + 14, arrowY - 5)
+            ..lineTo(center.dx + 14, arrowY + 5)
+            ..close(),
+          Paint()..color = accentColor,
+        );
+        break;
+    }
+  }
+
+  void _drawRadialHatch(Canvas canvas, Offset center, double rIn, double rOut, Color color) {
+    final paint = Paint()..color = color..strokeWidth = 1.0;
+    for (int i = 0; i < 24; i++) {
+      final angle = (i * 2 * math.pi) / 24;
+      final p1 = Offset(center.dx + rIn * math.cos(angle), center.dy + rIn * math.sin(angle));
+      final p2 = Offset(center.dx + rOut * math.cos(angle), center.dy + rOut * math.sin(angle));
+      canvas.drawLine(p1, p2, paint);
     }
   }
 

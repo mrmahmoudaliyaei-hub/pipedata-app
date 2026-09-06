@@ -234,7 +234,7 @@ class _PipelineScreenState extends State<PipelineScreen> {
             child: Center(
               child: CustomPaint(
                 size: const Size(260, 150),
-                painter: VectorBlueprintPainter(category: ComponentCategory.pipelineTransport, data: item, subType: _schedule),
+                painter: VectorBlueprintPainter(category: ComponentCategory.pipelineTransport, data: item, subType: _schedule, accentColor: const Color(0xFFFF453A)),
               ),
             ),
           ),

@@ -794,143 +794,432 @@ class PipingMasterCatalog {
     },
   ];
 
-  // ASME B16.10 Flanged Valve Face-to-Face - Gate (solid wedge / conduit long pattern),
-  // Ball (short pattern, matches gate at these classes), and Swing Check.
+  // ASME B16.10 Flanged Valve Face-to-Face, by valve type (Gate/Ball share the
+  // short/long pattern per class; Globe and Swing Check share the B16.10 long pattern).
   static final List<Map<String, dynamic>> valves = [
     {
       'nps': '1/2"', 'dn': 15,
-      'classes': {
-        'Class 150': {'gateFtf': 108.0, 'ballFtf': 108.0, 'checkFtf': 108.0},
-        'Class 300': {'gateFtf': 140.0, 'ballFtf': 140.0, 'checkFtf': 140.0},
-        'Class 600': {'gateFtf': 165.0, 'ballFtf': 165.0, 'checkFtf': 165.0},
+      'types': {
+        'Gate Valve': {
+          'Class 150': {'ftf': 108.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 140.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 165.0, 'endConn': 'RF Flanged'},
+        },
+        'Ball Valve': {
+          'Class 150': {'ftf': 108.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 140.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 165.0, 'endConn': 'RF Flanged'},
+        },
+        'Globe Valve': {
+          'Class 150': {'ftf': 108.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 140.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 165.0, 'endConn': 'RF Flanged'},
+        },
+        'Swing Check Valve': {
+          'Class 150': {'ftf': 108.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 140.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 165.0, 'endConn': 'RF Flanged'},
+        },
       }
     },
     {
       'nps': '3/4"', 'dn': 20,
-      'classes': {
-        'Class 150': {'gateFtf': 119.0, 'ballFtf': 119.0, 'checkFtf': 119.0},
-        'Class 300': {'gateFtf': 154.0, 'ballFtf': 154.0, 'checkFtf': 162.0},
-        'Class 600': {'gateFtf': 193.0, 'ballFtf': 193.0, 'checkFtf': 193.0},
+      'types': {
+        'Gate Valve': {
+          'Class 150': {'ftf': 119.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 154.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 193.0, 'endConn': 'RF Flanged'},
+        },
+        'Ball Valve': {
+          'Class 150': {'ftf': 119.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 154.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 193.0, 'endConn': 'RF Flanged'},
+        },
+        'Globe Valve': {
+          'Class 150': {'ftf': 119.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 162.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 193.0, 'endConn': 'RF Flanged'},
+        },
+        'Swing Check Valve': {
+          'Class 150': {'ftf': 119.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 162.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 193.0, 'endConn': 'RF Flanged'},
+        },
       }
     },
     {
       'nps': '1"', 'dn': 25,
-      'classes': {
-        'Class 150': {'gateFtf': 127.0, 'ballFtf': 127.0, 'checkFtf': 127.0},
-        'Class 300': {'gateFtf': 165.0, 'ballFtf': 165.0, 'checkFtf': 216.0},
-        'Class 600': {'gateFtf': 216.0, 'ballFtf': 216.0, 'checkFtf': 216.0},
+      'types': {
+        'Gate Valve': {
+          'Class 150': {'ftf': 127.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 165.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 216.0, 'endConn': 'RF Flanged'},
+        },
+        'Ball Valve': {
+          'Class 150': {'ftf': 127.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 165.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 216.0, 'endConn': 'RF Flanged'},
+        },
+        'Globe Valve': {
+          'Class 150': {'ftf': 127.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 216.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 216.0, 'endConn': 'RF Flanged'},
+        },
+        'Swing Check Valve': {
+          'Class 150': {'ftf': 127.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 216.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 216.0, 'endConn': 'RF Flanged'},
+        },
       }
     },
     {
       'nps': '1-1/2"', 'dn': 40,
-      'classes': {
-        'Class 150': {'gateFtf': 155.0, 'ballFtf': 155.0, 'checkFtf': 155.0},
-        'Class 300': {'gateFtf': 193.0, 'ballFtf': 193.0, 'checkFtf': 203.0},
-        'Class 600': {'gateFtf': 258.0, 'ballFtf': 258.0, 'checkFtf': 258.0},
+      'types': {
+        'Gate Valve': {
+          'Class 150': {'ftf': 155.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 193.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 258.0, 'endConn': 'RF Flanged'},
+        },
+        'Ball Valve': {
+          'Class 150': {'ftf': 155.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 193.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 258.0, 'endConn': 'RF Flanged'},
+        },
+        'Globe Valve': {
+          'Class 150': {'ftf': 155.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 203.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 258.0, 'endConn': 'RF Flanged'},
+        },
+        'Swing Check Valve': {
+          'Class 150': {'ftf': 155.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 203.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 258.0, 'endConn': 'RF Flanged'},
+        },
       }
     },
     {
       'nps': '2"', 'dn': 50,
-      'classes': {
-        'Class 150': {'gateFtf': 178.0, 'ballFtf': 178.0, 'checkFtf': 178.0},
-        'Class 300': {'gateFtf': 216.0, 'ballFtf': 216.0, 'checkFtf': 267.0},
-        'Class 600': {'gateFtf': 292.0, 'ballFtf': 292.0, 'checkFtf': 292.0},
+      'types': {
+        'Gate Valve': {
+          'Class 150': {'ftf': 178.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 216.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 292.0, 'endConn': 'RF Flanged'},
+        },
+        'Ball Valve': {
+          'Class 150': {'ftf': 178.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 216.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 292.0, 'endConn': 'RF Flanged'},
+        },
+        'Globe Valve': {
+          'Class 150': {'ftf': 178.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 267.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 292.0, 'endConn': 'RF Flanged'},
+        },
+        'Swing Check Valve': {
+          'Class 150': {'ftf': 178.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 267.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 292.0, 'endConn': 'RF Flanged'},
+        },
       }
     },
     {
       'nps': '3"', 'dn': 80,
-      'classes': {
-        'Class 150': {'gateFtf': 206.0, 'ballFtf': 206.0, 'checkFtf': 206.0},
-        'Class 300': {'gateFtf': 264.0, 'ballFtf': 264.0, 'checkFtf': 277.0},
-        'Class 600': {'gateFtf': 367.0, 'ballFtf': 367.0, 'checkFtf': 367.0},
+      'types': {
+        'Gate Valve': {
+          'Class 150': {'ftf': 206.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 264.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 367.0, 'endConn': 'RF Flanged'},
+        },
+        'Ball Valve': {
+          'Class 150': {'ftf': 206.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 264.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 367.0, 'endConn': 'RF Flanged'},
+        },
+        'Globe Valve': {
+          'Class 150': {'ftf': 206.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 277.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 367.0, 'endConn': 'RF Flanged'},
+        },
+        'Swing Check Valve': {
+          'Class 150': {'ftf': 206.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 277.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 367.0, 'endConn': 'RF Flanged'},
+        },
       }
     },
     {
       'nps': '4"', 'dn': 100,
-      'classes': {
-        'Class 150': {'gateFtf': 229.0, 'ballFtf': 229.0, 'checkFtf': 229.0},
-        'Class 300': {'gateFtf': 305.0, 'ballFtf': 305.0, 'checkFtf': 356.0},
-        'Class 600': {'gateFtf': 432.0, 'ballFtf': 432.0, 'checkFtf': 432.0},
+      'types': {
+        'Gate Valve': {
+          'Class 150': {'ftf': 229.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 305.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 432.0, 'endConn': 'RF Flanged'},
+        },
+        'Ball Valve': {
+          'Class 150': {'ftf': 229.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 305.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 432.0, 'endConn': 'RF Flanged'},
+        },
+        'Globe Valve': {
+          'Class 150': {'ftf': 229.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 356.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 432.0, 'endConn': 'RF Flanged'},
+        },
+        'Swing Check Valve': {
+          'Class 150': {'ftf': 229.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 356.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 432.0, 'endConn': 'RF Flanged'},
+        },
       }
     },
     {
       'nps': '5"', 'dn': 125,
-      'classes': {
-        'Class 150': {'gateFtf': 248.0, 'ballFtf': 248.0, 'checkFtf': 248.0},
-        'Class 300': {'gateFtf': 338.0, 'ballFtf': 338.0, 'checkFtf': 355.0},
-        'Class 600': {'gateFtf': 495.0, 'ballFtf': 495.0, 'checkFtf': 495.0},
+      'types': {
+        'Gate Valve': {
+          'Class 150': {'ftf': 248.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 338.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 495.0, 'endConn': 'RF Flanged'},
+        },
+        'Ball Valve': {
+          'Class 150': {'ftf': 248.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 338.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 495.0, 'endConn': 'RF Flanged'},
+        },
+        'Globe Valve': {
+          'Class 150': {'ftf': 248.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 355.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 495.0, 'endConn': 'RF Flanged'},
+        },
+        'Swing Check Valve': {
+          'Class 150': {'ftf': 248.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 355.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 495.0, 'endConn': 'RF Flanged'},
+        },
       }
     },
     {
       'nps': '6"', 'dn': 150,
-      'classes': {
-        'Class 150': {'gateFtf': 264.0, 'ballFtf': 264.0, 'checkFtf': 264.0},
-        'Class 300': {'gateFtf': 367.0, 'ballFtf': 367.0, 'checkFtf': 385.0},
-        'Class 600': {'gateFtf': 554.0, 'ballFtf': 554.0, 'checkFtf': 554.0},
+      'types': {
+        'Gate Valve': {
+          'Class 150': {'ftf': 264.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 367.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 554.0, 'endConn': 'RF Flanged'},
+        },
+        'Ball Valve': {
+          'Class 150': {'ftf': 264.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 367.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 554.0, 'endConn': 'RF Flanged'},
+        },
+        'Globe Valve': {
+          'Class 150': {'ftf': 264.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 385.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 554.0, 'endConn': 'RF Flanged'},
+        },
+        'Swing Check Valve': {
+          'Class 150': {'ftf': 264.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 385.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 554.0, 'endConn': 'RF Flanged'},
+        },
       }
     },
     {
       'nps': '8"', 'dn': 200,
-      'classes': {
-        'Class 150': {'gateFtf': 292.0, 'ballFtf': 292.0, 'checkFtf': 292.0},
-        'Class 300': {'gateFtf': 419.0, 'ballFtf': 419.0, 'checkFtf': 533.0},
-        'Class 600': {'gateFtf': 660.0, 'ballFtf': 660.0, 'checkFtf': 660.0},
+      'types': {
+        'Gate Valve': {
+          'Class 150': {'ftf': 292.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 419.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 660.0, 'endConn': 'RF Flanged'},
+        },
+        'Ball Valve': {
+          'Class 150': {'ftf': 292.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 419.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 660.0, 'endConn': 'RF Flanged'},
+        },
+        'Globe Valve': {
+          'Class 150': {'ftf': 292.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 533.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 660.0, 'endConn': 'RF Flanged'},
+        },
+        'Swing Check Valve': {
+          'Class 150': {'ftf': 292.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 533.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 660.0, 'endConn': 'RF Flanged'},
+        },
       }
     },
     {
       'nps': '10"', 'dn': 250,
-      'classes': {
-        'Class 150': {'gateFtf': 326.0, 'ballFtf': 326.0, 'checkFtf': 326.0},
-        'Class 300': {'gateFtf': 463.0, 'ballFtf': 463.0, 'checkFtf': 486.0},
-        'Class 600': {'gateFtf': 753.0, 'ballFtf': 753.0, 'checkFtf': 753.0},
+      'types': {
+        'Gate Valve': {
+          'Class 150': {'ftf': 326.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 463.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 753.0, 'endConn': 'RF Flanged'},
+        },
+        'Ball Valve': {
+          'Class 150': {'ftf': 326.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 463.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 753.0, 'endConn': 'RF Flanged'},
+        },
+        'Globe Valve': {
+          'Class 150': {'ftf': 326.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 486.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 753.0, 'endConn': 'RF Flanged'},
+        },
+        'Swing Check Valve': {
+          'Class 150': {'ftf': 326.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 486.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 753.0, 'endConn': 'RF Flanged'},
+        },
       }
     },
     {
       'nps': '12"', 'dn': 300,
-      'classes': {
-        'Class 150': {'gateFtf': 356.0, 'ballFtf': 356.0, 'checkFtf': 356.0},
-        'Class 300': {'gateFtf': 502.0, 'ballFtf': 502.0, 'checkFtf': 711.0},
-        'Class 600': {'gateFtf': 838.0, 'ballFtf': 838.0, 'checkFtf': 838.0},
+      'types': {
+        'Gate Valve': {
+          'Class 150': {'ftf': 356.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 502.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 838.0, 'endConn': 'RF Flanged'},
+        },
+        'Ball Valve': {
+          'Class 150': {'ftf': 356.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 502.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 838.0, 'endConn': 'RF Flanged'},
+        },
+        'Globe Valve': {
+          'Class 150': {'ftf': 356.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 711.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 838.0, 'endConn': 'RF Flanged'},
+        },
+        'Swing Check Valve': {
+          'Class 150': {'ftf': 356.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 711.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 838.0, 'endConn': 'RF Flanged'},
+        },
       }
     },
     {
       'nps': '14"', 'dn': 350,
-      'classes': {
-        'Class 150': {'gateFtf': 384.0, 'ballFtf': 384.0, 'checkFtf': 384.0},
-        'Class 300': {'gateFtf': 538.0, 'ballFtf': 538.0, 'checkFtf': 565.0},
-        'Class 600': {'gateFtf': 918.0, 'ballFtf': 918.0, 'checkFtf': 918.0},
+      'types': {
+        'Gate Valve': {
+          'Class 150': {'ftf': 384.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 538.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 918.0, 'endConn': 'RF Flanged'},
+        },
+        'Ball Valve': {
+          'Class 150': {'ftf': 384.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 538.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 918.0, 'endConn': 'RF Flanged'},
+        },
+        'Globe Valve': {
+          'Class 150': {'ftf': 384.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 565.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 918.0, 'endConn': 'RF Flanged'},
+        },
+        'Swing Check Valve': {
+          'Class 150': {'ftf': 384.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 565.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 918.0, 'endConn': 'RF Flanged'},
+        },
       }
     },
     {
       'nps': '16"', 'dn': 400,
-      'classes': {
-        'Class 150': {'gateFtf': 410.0, 'ballFtf': 410.0, 'checkFtf': 410.0},
-        'Class 300': {'gateFtf': 571.0, 'ballFtf': 571.0, 'checkFtf': 600.0},
-        'Class 600': {'gateFtf': 993.0, 'ballFtf': 993.0, 'checkFtf': 993.0},
+      'types': {
+        'Gate Valve': {
+          'Class 150': {'ftf': 410.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 571.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 993.0, 'endConn': 'RF Flanged'},
+        },
+        'Ball Valve': {
+          'Class 150': {'ftf': 410.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 571.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 993.0, 'endConn': 'RF Flanged'},
+        },
+        'Globe Valve': {
+          'Class 150': {'ftf': 410.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 600.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 993.0, 'endConn': 'RF Flanged'},
+        },
+        'Swing Check Valve': {
+          'Class 150': {'ftf': 410.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 600.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 993.0, 'endConn': 'RF Flanged'},
+        },
       }
     },
     {
       'nps': '18"', 'dn': 450,
-      'classes': {
-        'Class 150': {'gateFtf': 434.0, 'ballFtf': 434.0, 'checkFtf': 434.0},
-        'Class 300': {'gateFtf': 601.0, 'ballFtf': 601.0, 'checkFtf': 631.0},
-        'Class 600': {'gateFtf': 1064.0, 'ballFtf': 1064.0, 'checkFtf': 1064.0},
+      'types': {
+        'Gate Valve': {
+          'Class 150': {'ftf': 434.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 601.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 1064.0, 'endConn': 'RF Flanged'},
+        },
+        'Ball Valve': {
+          'Class 150': {'ftf': 434.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 601.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 1064.0, 'endConn': 'RF Flanged'},
+        },
+        'Globe Valve': {
+          'Class 150': {'ftf': 434.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 631.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 1064.0, 'endConn': 'RF Flanged'},
+        },
+        'Swing Check Valve': {
+          'Class 150': {'ftf': 434.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 631.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 1064.0, 'endConn': 'RF Flanged'},
+        },
       }
     },
     {
       'nps': '20"', 'dn': 500,
-      'classes': {
-        'Class 150': {'gateFtf': 457.0, 'ballFtf': 457.0, 'checkFtf': 457.0},
-        'Class 300': {'gateFtf': 630.0, 'ballFtf': 630.0, 'checkFtf': 662.0},
-        'Class 600': {'gateFtf': 1132.0, 'ballFtf': 1132.0, 'checkFtf': 1132.0},
+      'types': {
+        'Gate Valve': {
+          'Class 150': {'ftf': 457.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 630.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 1132.0, 'endConn': 'RF Flanged'},
+        },
+        'Ball Valve': {
+          'Class 150': {'ftf': 457.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 630.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 1132.0, 'endConn': 'RF Flanged'},
+        },
+        'Globe Valve': {
+          'Class 150': {'ftf': 457.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 662.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 1132.0, 'endConn': 'RF Flanged'},
+        },
+        'Swing Check Valve': {
+          'Class 150': {'ftf': 457.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 662.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 1132.0, 'endConn': 'RF Flanged'},
+        },
       }
     },
     {
       'nps': '24"', 'dn': 600,
-      'classes': {
-        'Class 150': {'gateFtf': 500.0, 'ballFtf': 500.0, 'checkFtf': 500.0},
-        'Class 300': {'gateFtf': 684.0, 'ballFtf': 684.0, 'checkFtf': 718.0},
-        'Class 600': {'gateFtf': 1260.0, 'ballFtf': 1260.0, 'checkFtf': 1260.0},
+      'types': {
+        'Gate Valve': {
+          'Class 150': {'ftf': 500.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 684.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 1260.0, 'endConn': 'RF Flanged'},
+        },
+        'Ball Valve': {
+          'Class 150': {'ftf': 500.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 684.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 1260.0, 'endConn': 'RF Flanged'},
+        },
+        'Globe Valve': {
+          'Class 150': {'ftf': 500.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 718.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 1260.0, 'endConn': 'RF Flanged'},
+        },
+        'Swing Check Valve': {
+          'Class 150': {'ftf': 500.0, 'endConn': 'RF Flanged'},
+          'Class 300': {'ftf': 718.0, 'endConn': 'RF Flanged'},
+          'Class 600': {'ftf': 1260.0, 'endConn': 'RF Flanged'},
+        },
       }
     },
   ];
