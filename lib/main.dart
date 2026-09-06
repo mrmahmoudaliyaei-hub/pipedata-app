@@ -2,100 +2,97 @@ import 'package:flutter/material.dart';
 import 'core/models.dart';
 import 'painters/schematic_painter.dart';
 
-void main() => runApp(const PipingApp());
+void main() => runApp(const ApplePipingApp());
 
-class PipingApp extends StatelessWidget {
-  const PipingApp({super.key});
+class ApplePipingApp extends StatelessWidget {
+  const ApplePipingApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      title: 'Piping Data Pro',
       theme: ThemeData(
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF000000),
+        scaffoldBackgroundColor: const Color(0xFF000000), // OLED True Black
+        primaryColor: const Color(0xFF0A84FF),
+        cardColor: const Color(0xFF1C1C1E),
+        fontFamily: 'SF Pro Display',
       ),
-      home: const IndustrialDashboard(),
+      home: const WorkstationView(),
     );
   }
 }
 
-class IndustrialDashboard extends StatefulWidget {
-  const IndustrialDashboard({super.key});
+class WorkstationView extends StatefulWidget {
+  const WorkstationView({super.key});
 
   @override
-  State<IndustrialDashboard> createState() => _IndustrialDashboardState();
+  State<WorkstationView> createState() => _WorkstationViewState();
 }
 
-class _IndustrialDashboardState extends State<IndustrialDashboard> {
+class _WorkstationViewState extends State<WorkstationView> {
   ComponentCategory _category = ComponentCategory.pipe;
-  int _selectedIndex = 2;
+  int _selectedSizeIndex = 4; // NPS 2" پیش‌فرض
+  String _selectedSubOption = 'Sch 40 (STD)';
 
-  final Map<ComponentCategory, List<ComponentRecord>> _data = {
-    ComponentCategory.pipe: [
-      ComponentRecord(nps: '1/2"', dn: 15, standard: 'ASME B36.10M', typeName: 'Pipe', metrics: {'od': 21.3, 'sch': '40', 'thk': 2.77, 'id': 15.8, 'wt': 1.27}),
-      ComponentRecord(nps: '3/4"', dn: 20, standard: 'ASME B36.10M', typeName: 'Pipe', metrics: {'od': 26.7, 'sch': '40', 'thk': 2.87, 'id': 20.93, 'wt': 1.69}),
-      ComponentRecord(nps: '1"', dn: 25, standard: 'ASME B36.10M', typeName: 'Pipe', metrics: {'od': 33.4, 'sch': '40', 'thk': 3.38, 'id': 26.64, 'wt': 2.50}),
-      ComponentRecord(nps: '2"', dn: 50, standard: 'ASME B36.10M', typeName: 'Pipe', metrics: {'od': 60.3, 'sch': '40', 'thk': 3.91, 'id': 52.51, 'wt': 5.44}),
-      ComponentRecord(nps: '3"', dn: 80, standard: 'ASME B36.10M', typeName: 'Pipe', metrics: {'od': 88.9, 'sch': '40', 'thk': 5.49, 'id': 77.92, 'wt': 11.29}),
-      ComponentRecord(nps: '4"', dn: 100, standard: 'ASME B36.10M', typeName: 'Pipe', metrics: {'od': 114.3, 'sch': '40', 'thk': 6.02, 'id': 102.26, 'wt': 16.07}),
-      ComponentRecord(nps: '6"', dn: 150, standard: 'ASME B36.10M', typeName: 'Pipe', metrics: {'od': 168.3, 'sch': '40', 'thk': 7.11, 'id': 154.08, 'wt': 28.26}),
-      ComponentRecord(nps: '8"', dn: 200, standard: 'ASME B36.10M', typeName: 'Pipe', metrics: {'od': 219.1, 'sch': '40', 'thk': 8.18, 'id': 202.74, 'wt': 42.55}),
-    ],
-    ComponentCategory.flange: [
-      ComponentRecord(nps: '1/2"', dn: 15, standard: 'ASME B16.5', typeName: 'Flange', metrics: {'class': 150, 'od': 89.0, 'pcd': 60.3, 'bolts': 4, 'boltDia': 15.9, 'thk': 11.1}),
-      ComponentRecord(nps: '3/4"', dn: 20, standard: 'ASME B16.5', typeName: 'Flange', metrics: {'class': 150, 'od': 98.0, 'pcd': 69.9, 'bolts': 4, 'boltDia': 15.9, 'thk': 12.7}),
-      ComponentRecord(nps: '1"', dn: 25, standard: 'ASME B16.5', typeName: 'Flange', metrics: {'class': 150, 'od': 108.0, 'pcd': 79.4, 'bolts': 4, 'boltDia': 15.9, 'thk': 14.3}),
-      ComponentRecord(nps: '2"', dn: 50, standard: 'ASME B16.5', typeName: 'Flange', metrics: {'class': 150, 'od': 152.0, 'pcd': 120.7, 'bolts': 4, 'boltDia': 19.1, 'thk': 19.1}),
-      ComponentRecord(nps: '3"', dn: 80, standard: 'ASME B16.5', typeName: 'Flange', metrics: {'class': 150, 'od': 190.0, 'pcd': 152.4, 'bolts': 4, 'boltDia': 19.1, 'thk': 23.8}),
-      ComponentRecord(nps: '4"', dn: 100, standard: 'ASME B16.5', typeName: 'Flange', metrics: {'class': 150, 'od': 229.0, 'pcd': 190.5, 'bolts': 8, 'boltDia': 19.1, 'thk': 23.8}),
-      ComponentRecord(nps: '6"', dn: 150, standard: 'ASME B16.5', typeName: 'Flange', metrics: {'class': 150, 'od': 279.0, 'pcd': 241.3, 'bolts': 8, 'boltDia': 22.2, 'thk': 25.4}),
-      ComponentRecord(nps: '8"', dn: 200, standard: 'ASME B16.5', typeName: 'Flange', metrics: {'class': 150, 'od': 343.0, 'pcd': 298.5, 'bolts': 8, 'boltDia': 22.2, 'thk': 28.6}),
-    ],
-    ComponentCategory.buttWeld: [
-      ComponentRecord(nps: '1/2"', dn: 15, standard: 'ASME B16.9', typeName: 'BW Elbow', metrics: {'elbow90LR': 38.0, 'elbow90SR': 25.4, 'teeCenter': 25.0, 'reducerH': 38.0}),
-      ComponentRecord(nps: '1"', dn: 25, standard: 'ASME B16.9', typeName: 'BW Elbow', metrics: {'elbow90LR': 38.0, 'elbow90SR': 25.4, 'teeCenter': 38.0, 'reducerH': 51.0}),
-      ComponentRecord(nps: '2"', dn: 50, standard: 'ASME B16.9', typeName: 'BW Elbow', metrics: {'elbow90LR': 76.0, 'elbow90SR': 51.0, 'teeCenter': 64.0, 'reducerH': 76.0}),
-      ComponentRecord(nps: '3"', dn: 80, standard: 'ASME B16.9', typeName: 'BW Elbow', metrics: {'elbow90LR': 114.0, 'elbow90SR': 76.0, 'teeCenter': 86.0, 'reducerH': 89.0}),
-      ComponentRecord(nps: '4"', dn: 100, standard: 'ASME B16.9', typeName: 'BW Elbow', metrics: {'elbow90LR': 152.0, 'elbow90SR': 102.0, 'teeCenter': 105.0, 'reducerH': 102.0}),
-      ComponentRecord(nps: '6"', dn: 150, standard: 'ASME B16.9', typeName: 'BW Elbow', metrics: {'elbow90LR': 229.0, 'elbow90SR': 152.0, 'teeCenter': 143.0, 'reducerH': 140.0}),
-      ComponentRecord(nps: '8"', dn: 200, standard: 'ASME B16.9', typeName: 'BW Elbow', metrics: {'elbow90LR': 305.0, 'elbow90SR': 203.0, 'teeCenter': 178.0, 'reducerH': 152.0}),
-    ],
-    ComponentCategory.socketWeld: [
-      ComponentRecord(nps: '1/2"', dn: 15, standard: 'ASME B16.11', typeName: 'SW Fitting', metrics: {'bore': 21.8, 'depth': 9.5, 'cToE': 24.5, 'gap': 1.6}),
-      ComponentRecord(nps: '3/4"', dn: 20, standard: 'ASME B16.11', typeName: 'SW Fitting', metrics: {'bore': 27.2, 'depth': 12.5, 'cToE': 28.5, 'gap': 1.6}),
-      ComponentRecord(nps: '1"', dn: 25, standard: 'ASME B16.11', typeName: 'SW Fitting', metrics: {'bore': 33.9, 'depth': 12.5, 'cToE': 34.0, 'gap': 1.6}),
-      ComponentRecord(nps: '2"', dn: 50, standard: 'ASME B16.11', typeName: 'SW Fitting', metrics: {'bore': 61.2, 'depth': 16.0, 'cToE': 47.5, 'gap': 1.6}),
-    ],
-    ComponentCategory.threaded: [
-      ComponentRecord(nps: '1/2"', dn: 15, standard: 'ASME B16.11 / NPT', typeName: 'THD Elbow', metrics: {'cToE': 25.0, 'minThreadL2': 13.5, 'tpi': 14}),
-      ComponentRecord(nps: '3/4"', dn: 20, standard: 'ASME B16.11 / NPT', typeName: 'THD Elbow', metrics: {'cToE': 28.5, 'minThreadL2': 14.0, 'tpi': 14}),
-      ComponentRecord(nps: '1"', dn: 25, standard: 'ASME B16.11 / NPT', typeName: 'THD Elbow', metrics: {'cToE': 34.0, 'minThreadL2': 17.5, 'tpi': 11.5}),
-      ComponentRecord(nps: '2"', dn: 50, standard: 'ASME B16.11 / NPT', typeName: 'THD Elbow', metrics: {'cToE': 52.5, 'minThreadL2': 19.5, 'tpi': 11.5}),
-    ],
-  };
+  List<ComponentMetric> get _currentList {
+    switch (_category) {
+      case ComponentCategory.pipe:
+        return PipingDatabase.pipes;
+      case ComponentCategory.flange:
+        return PipingDatabase.flanges;
+      case ComponentCategory.buttWeld:
+        return PipingDatabase.buttWelds;
+      case ComponentCategory.socketWeld:
+        return PipingDatabase.socketWelds;
+      case ComponentCategory.threaded:
+        return PipingDatabase.threadeds;
+    }
+  }
+
+  void _updateSubOption() {
+    final item = _currentList[_selectedSizeIndex];
+    if (_category == ComponentCategory.pipe) {
+      final schs = (item.data['schedules'] as Map<String, dynamic>).keys.toList();
+      if (!schs.contains(_selectedSubOption)) _selectedSubOption = schs.contains('Sch 40 (STD)') ? 'Sch 40 (STD)' : schs.first;
+    } else if (_category == ComponentCategory.flange) {
+      final clss = (item.data['classes'] as Map<String, dynamic>).keys.toList();
+      if (!clss.contains(_selectedSubOption)) _selectedSubOption = clss.contains('Class 150') ? 'Class 150' : clss.first;
+    } else {
+      _selectedSubOption = '';
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _updateSubOption();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final list = _data[_category]!;
-    if (_selectedIndex >= list.length) _selectedIndex = 0;
-    final item = list[_selectedIndex];
+    if (_selectedSizeIndex >= _currentList.length) _selectedSizeIndex = 0;
+    final item = _currentList[_selectedSizeIndex];
 
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
-            _buildCategoryTabs(),
+            _buildAppleHeader(),
+            _buildSegmentedCategoryControl(),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 children: [
-                  _buildSizeSelector(list),
+                  _buildSizeSlider(item),
+                  if (_category == ComponentCategory.pipe || _category == ComponentCategory.flange)
+                    _buildSubOptionSelector(item),
+                  const SizedBox(height: 12),
+                  _buildSchematicView(item),
                   const SizedBox(height: 14),
-                  _buildSchematicCard(item),
-                  const SizedBox(height: 14),
-                  _buildMetricsCard(item),
+                  _buildAppleMetricsGrid(item),
                 ],
               ),
             ),
@@ -105,25 +102,42 @@ class _IndustrialDashboardState extends State<IndustrialDashboard> {
     );
   }
 
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 6),
+  Widget _buildAppleHeader() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('Piping Data Pro', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text('Piping Data Pro', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.5)),
+              SizedBox(height: 2),
+              Text('ASME INDUSTRIAL WORKSTATION', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF8E8E93), letterSpacing: 0.8)),
+            ],
+          ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(color: const Color(0xFF1C1C1E), borderRadius: BorderRadius.circular(16)),
-            child: const Text('ASME INDUSTRIAL', style: TextStyle(fontSize: 10, color: Color(0xFF30D158), fontWeight: FontWeight.bold)),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1C1C1E),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFF2C2C2E)),
+            ),
+            child: Row(
+              children: const [
+                Icon(Icons.check_circle_rounded, color: Color(0xFF30D158), size: 12),
+                SizedBox(width: 5),
+                Text('ASME VERIFIED', style: TextStyle(fontSize: 10, color: Color(0xFF30D158), fontWeight: FontWeight.bold)),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCategoryTabs() {
-    final tabs = [
+  Widget _buildSegmentedCategoryControl() {
+    final categories = [
       {'label': 'Pipes', 'cat': ComponentCategory.pipe},
       {'label': 'Flanges', 'cat': ComponentCategory.flange},
       {'label': 'Butt-Weld', 'cat': ComponentCategory.buttWeld},
@@ -133,75 +147,149 @@ class _IndustrialDashboardState extends State<IndustrialDashboard> {
 
     return Container(
       height: 38,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: tabs.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, i) {
-          final active = _category == tabs[i]['cat'];
-          return GestureDetector(
-            onTap: () => setState(() { _category = tabs[i]['cat'] as ComponentCategory; _selectedIndex = 0; }),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: active ? const Color(0xFF2C2C2E) : const Color(0xFF161618),
-                borderRadius: BorderRadius.circular(10),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C1C1E),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: categories.map((c) {
+          final isSelected = _category == c['cat'];
+          return Expanded(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _category = c['cat'] as ComponentCategory;
+                  _selectedSizeIndex = 0;
+                  _updateSubOption();
+                });
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: isSelected ? const Color(0xFF2C2C2E) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  c['label'] as String,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                    color: isSelected ? Colors.white : const Color(0xFF8E8E93),
+                  ),
+                ),
               ),
-              child: Text(tabs[i]['label'] as String, style: TextStyle(color: active ? Colors.white : Colors.white54, fontSize: 12)),
             ),
           );
-        },
+        }).toList(),
       ),
     );
   }
 
-  Widget _buildSizeSelector(List<ComponentRecord> list) {
-    return SizedBox(
-      height: 38,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: list.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, i) {
-          final active = _selectedIndex == i;
-          return GestureDetector(
-            onTap: () => setState(() => _selectedIndex = i),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: active ? Colors.white : const Color(0xFF1C1C1E),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text('${list[i].nps} (DN ${list[i].dn})', style: TextStyle(color: active ? Colors.black : Colors.white70, fontWeight: FontWeight.bold, fontSize: 12)),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildSchematicCard(ComponentRecord item) {
+  Widget _buildSizeSlider(ComponentMetric item) {
     return Container(
-      height: 200,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: const Color(0xFF161618), borderRadius: BorderRadius.circular(16)),
+      height: 44,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: _currentList.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, i) {
+          final isSelected = _selectedSizeIndex == i;
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                _selectedSizeIndex = i;
+                _updateSubOption();
+              });
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.white : const Color(0xFF1C1C1E),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: isSelected ? Colors.white : const Color(0xFF2C2C2E)),
+              ),
+              child: Text(
+                '${_currentList[i].nps} (DN ${_currentList[i].dn})',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: isSelected ? Colors.black : Colors.white,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSubOptionSelector(ComponentMetric item) {
+    List<String> options = [];
+    if (_category == ComponentCategory.pipe) {
+      options = (item.data['schedules'] as Map<String, dynamic>).keys.toList();
+    } else if (_category == ComponentCategory.flange) {
+      options = (item.data['classes'] as Map<String, dynamic>).keys.toList();
+    }
+
+    return Container(
+      height: 32,
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: options.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, i) {
+          final opt = options[i];
+          final isSelected = _selectedSubOption == opt;
+          return GestureDetector(
+            onTap: () => setState(() => _selectedSubOption = opt),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: isSelected ? const Color(0xFF0A84FF) : const Color(0xFF2C2C2E),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                opt,
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: isSelected ? Colors.white : const Color(0xFF8E8E93)),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSchematicView(ComponentMetric item) {
+    return Container(
+      height: 220,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C1C1E),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFF2C2C2E)),
+      ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('CROSS-SECTION SCHEMATIC', style: TextStyle(fontSize: 10, color: Colors.white38, fontWeight: FontWeight.bold)),
-              Text(item.standard, style: const TextStyle(fontSize: 10, color: Color(0xFFFF9F0A), fontWeight: FontWeight.bold)),
+              const Text('CROSS-SECTION CAD SCHEMATIC', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF8E8E93), letterSpacing: 0.5)),
+              Text(item.data['std'] as String, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFFF9F0A))),
             ],
           ),
           Expanded(
             child: Center(
               child: CustomPaint(
-                size: const Size(220, 140),
-                painter: ComponentSchematicPainter(category: _category, record: item),
+                size: const Size(240, 160),
+                painter: SchematicPainter(category: _category, metric: item, subTypeKey: _selectedSubOption),
               ),
             ),
           ),
@@ -210,20 +298,65 @@ class _IndustrialDashboardState extends State<IndustrialDashboard> {
     );
   }
 
-  Widget _buildMetricsCard(ComponentRecord item) {
+  Widget _buildAppleMetricsGrid(ComponentMetric item) {
+    final Map<String, String> displayMap = {};
+
+    displayMap['Nominal Pipe Size'] = item.nps;
+    displayMap['Diameter Nominal'] = 'DN ${item.dn}';
+    displayMap['Outside Diameter (OD)'] = '${item.od} mm';
+    displayMap['Standard Specification'] = item.data['std'] as String;
+
+    if (_category == ComponentCategory.pipe) {
+      final schMap = (item.data['schedules'] as Map<String, dynamic>)[_selectedSubOption] ?? {};
+      displayMap['Active Schedule'] = _selectedSubOption;
+      displayMap['Wall Thickness (t)'] = '${schMap['thk']} mm';
+      displayMap['Inside Diameter (ID)'] = '${schMap['id']} mm';
+      displayMap['Weight per Meter'] = '${schMap['wt']} kg/m';
+    } else if (_category == ComponentCategory.flange) {
+      final clsMap = (item.data['classes'] as Map<String, dynamic>)[_selectedSubOption] ?? {};
+      displayMap['Pressure Rating'] = _selectedSubOption;
+      displayMap['Flange Thickness (C)'] = '${clsMap['thk']} mm';
+      displayMap['Pitch Circle Dia (PCD)'] = '${clsMap['pcd']} mm';
+      displayMap['Bolt Holes Quantity'] = '${clsMap['bolts']}';
+      displayMap['Bolt Stud Diameter'] = '${clsMap['boltDia']}';
+      displayMap['Length Thru Hub'] = '${clsMap['len']} mm';
+    } else if (_category == ComponentCategory.buttWeld) {
+      displayMap['90° LR Center-to-End'] = '${item.data['elbow90LR']} mm';
+      displayMap['90° SR Center-to-End'] = '${item.data['elbow90SR']} mm';
+      displayMap['45° Elbow Center-to-End'] = '${item.data['elbow45']} mm';
+      displayMap['Equal Tee Center-to-End'] = '${item.data['teeCtoE']} mm';
+      displayMap['Reducer Length (H)'] = '${item.data['reducerH']} mm';
+    } else if (_category == ComponentCategory.socketWeld) {
+      displayMap['Socket Bore Diameter'] = '${item.data['bore']} mm';
+      displayMap['Socket Minimum Depth'] = '${item.data['depth']} mm';
+      displayMap['Center-to-End Fitting'] = '${item.data['cToE']} mm';
+      displayMap['Minimum Wall (G)'] = '${item.data['minWall']} mm';
+      displayMap['Thermal Fit-up Gap'] = '${item.data['gap']} mm';
+    } else if (_category == ComponentCategory.threaded) {
+      displayMap['Threads per Inch (TPI)'] = '${item.data['tpi']}';
+      displayMap['Effective Thread (L2)'] = '${item.data['minThreadL2']} mm';
+      displayMap['Center-to-End Fitting'] = '${item.data['cToE']} mm';
+      displayMap['Thread Form & Taper'] = 'NPT 1:16 Taper';
+    }
+
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: const Color(0xFF161618), borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C1C1E),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFF2C2C2E)),
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: item.metrics.entries.map((e) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
+        children: displayMap.entries.map((entry) {
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(color: Color(0xFF2C2C2E), width: 0.5)),
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(e.key.toUpperCase(), style: const TextStyle(color: Colors.white54, fontSize: 12)),
-                Text('${e.value}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                Text(entry.key, style: const TextStyle(fontSize: 12, color: Color(0xFF8E8E93), fontWeight: FontWeight.w500)),
+                Text(entry.value, style: const TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.w600)),
               ],
             ),
           );

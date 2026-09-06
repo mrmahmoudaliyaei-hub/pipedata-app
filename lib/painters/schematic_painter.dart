@@ -2,104 +2,130 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../core/models.dart';
 
-class ComponentSchematicPainter extends CustomPainter {
+class SchematicPainter extends CustomPainter {
   final ComponentCategory category;
-  final ComponentRecord record;
+  final ComponentMetric metric;
+  final String subTypeKey;
 
-  ComponentSchematicPainter({required this.category, required this.record});
+  SchematicPainter({
+    required this.category,
+    required this.metric,
+    required this.subTypeKey,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final paintLine = Paint()
-      ..color = const Color(0xFFE5E5EA)
+    final borderPaint = Paint()
+      ..color = const Color(0xFFF2F2F7)
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
 
-    final paintAccent = Paint()
-      ..color = const Color(0xFFFF9F0A)
-      ..strokeWidth = 1.5
-      ..style = PaintingStyle.stroke;
-
-    final paintDim = Paint()
+    final dimPaint = Paint()
       ..color = const Color(0xFF0A84FF)
       ..strokeWidth = 1.2
       ..style = PaintingStyle.stroke;
 
+    final centerLinePaint = Paint()
+      ..color = const Color(0x66FFFFFF)
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+
     switch (category) {
       case ComponentCategory.pipe:
-        final double rOut = size.height * 0.38;
-        final double rIn = rOut * 0.76;
-        canvas.drawCircle(center, rOut, paintLine);
-        canvas.drawCircle(center, rIn, paintLine);
-        
-        final path = Path()
+        final schedules = metric.data['schedules'] as Map<String, dynamic>;
+        final sch = schedules[subTypeKey] ?? schedules.values.first;
+        final double thk = (sch['thk'] as num).toDouble();
+        final double od = metric.od;
+
+        final double rOut = (size.height * 0.40);
+        final double rIn = rOut * (1 - (2 * thk / od)).clamp(0.2, 0.95);
+
+        // مقطع لوله
+        canvas.drawCircle(center, rOut, borderPaint);
+        canvas.drawCircle(center, rIn, borderPaint);
+
+        // هاشور ضخامت جداره لوله
+        final hatchPath = Path()
           ..addOval(Rect.fromCircle(center: center, radius: rOut))
           ..addOval(Rect.fromCircle(center: center, radius: rIn))
           ..fillType = PathFillType.evenOdd;
-        canvas.drawPath(path, Paint()..color = const Color(0x22FFFFFF));
+        canvas.drawPath(hatchPath, Paint()..color = const Color(0x1FFFFFFF));
 
-        canvas.drawLine(Offset(center.dx - rOut, center.dy), Offset(center.dx + rOut, center.dy), paintDim);
-        _drawText(canvas, 'OD: ${record.metrics['od']} mm', Offset(center.dx, center.dy - 16), const Color(0xFF0A84FF));
+        // خط اندازه OD
+        canvas.drawLine(Offset(center.dx - rOut, center.dy), Offset(center.dx + rOut, center.dy), dimPaint);
+        _renderLabel(canvas, 'OD: ${metric.od} mm', Offset(center.dx, center.dy - 16), const Color(0xFF0A84FF));
+        _renderLabel(canvas, 'THK: $thk mm', Offset(center.dx, center.dy + 8), const Color(0xFF30D158));
         break;
 
       case ComponentCategory.flange:
-        final double rFlange = size.height * 0.42;
+        final classes = metric.data['classes'] as Map<String, dynamic>;
+        final flg = classes[subTypeKey] ?? classes.values.first;
+        final double rFlange = size.height * 0.44;
         final double rPcd = rFlange * 0.72;
-        final double rBore = rFlange * 0.40;
+        final double rBore = rFlange * 0.38;
 
-        canvas.drawCircle(center, rFlange, paintLine);
-        canvas.drawCircle(center, rBore, paintLine);
+        canvas.drawCircle(center, rFlange, borderPaint);
+        canvas.drawCircle(center, rBore, borderPaint);
         canvas.drawCircle(center, rPcd, Paint()..color = const Color(0xFFFF9F0A)..strokeWidth = 1.0..style = PaintingStyle.stroke);
 
-        final int boltCount = record.metrics['bolts'] as int? ?? 4;
-        for (int i = 0; i < boltCount; i++) {
-          final double angle = (i * 2 * math.pi) / boltCount;
-          final boltPos = Offset(center.dx + rPcd * math.cos(angle), center.dy + rPcd * math.sin(angle));
-          canvas.drawCircle(boltPos, 5.0, Paint()..color = const Color(0xFF000000));
-          canvas.drawCircle(boltPos, 5.0, paintLine);
+        final int bolts = flg['bolts'] as int;
+        for (int i = 0; i < bolts; i++) {
+          final double angle = (i * 2 * math.pi) / bolts;
+          final boltCenter = Offset(center.dx + rPcd * math.cos(angle), center.dy + rPcd * math.sin(angle));
+          canvas.drawCircle(boltCenter, 5.0, Paint()..color = const Color(0xFF000000));
+          canvas.drawCircle(boltCenter, 5.0, borderPaint);
         }
-        _drawText(canvas, 'PCD: ${record.metrics['pcd']} mm', Offset(center.dx, center.dy + rPcd + 8), const Color(0xFFFF9F0A));
+        _renderLabel(canvas, 'PCD: ${flg['pcd']} mm (${bolts}x ${flg['boltDia']})', Offset(center.dx, center.dy + rPcd + 8), const Color(0xFFFF9F0A));
         break;
 
       case ComponentCategory.buttWeld:
-        final pathElbow = Path();
-        pathElbow.moveTo(center.dx - 50, center.dy + 50);
-        pathElbow.quadraticBezierTo(center.dx - 50, center.dy - 50, center.dx + 50, center.dy - 50);
-        canvas.drawPath(pathElbow, paintLine);
-        canvas.drawLine(Offset(center.dx - 50, center.dy + 50), Offset(center.dx - 50, center.dy - 50), paintAccent);
-        canvas.drawLine(Offset(center.dx - 50, center.dy - 50), Offset(center.dx + 50, center.dy - 50), paintAccent);
-        _drawText(canvas, 'Center-to-End: ${record.metrics['elbow90LR']} mm', Offset(center.dx, center.dy - 65), const Color(0xFFFF9F0A));
+        final double cToE = ((metric.data['elbow90LR'] ?? 76) as num).toDouble();
+        final path = Path();
+        path.moveTo(center.dx - 60, center.dy + 60);
+        path.quadraticBezierTo(center.dx - 60, center.dy - 60, center.dx + 60, center.dy - 60);
+        canvas.drawPath(path, borderPaint);
+
+        canvas.drawLine(Offset(center.dx - 60, center.dy + 60), Offset(center.dx - 60, center.dy - 60), centerLinePaint);
+        canvas.drawLine(Offset(center.dx - 60, center.dy - 60), Offset(center.dx + 60, center.dy - 60), centerLinePaint);
+
+        _renderLabel(canvas, '90° LR Center-to-End: $cToE mm', Offset(center.dx, center.dy - 75), const Color(0xFFFF9F0A));
         break;
 
       case ComponentCategory.socketWeld:
-        canvas.drawRect(Rect.fromCenter(center: center, width: 130, height: 80), paintLine);
-        canvas.drawRect(Rect.fromCenter(center: Offset(center.dx - 10, center.dy), width: 90, height: 50), paintAccent);
-        canvas.drawRect(Rect.fromLTWH(center.dx + 35, center.dy - 25, 4, 50), Paint()..color = const Color(0xFF30D158));
-        _drawText(canvas, 'Fit-up Gap: 1.6 mm', Offset(center.dx, center.dy + 46), const Color(0xFF30D158));
+        final double bore = ((metric.data['bore'] ?? 21.8) as num).toDouble();
+        final double depth = ((metric.data['depth'] ?? 9.5) as num).toDouble();
+
+        canvas.drawRect(Rect.fromCenter(center: center, width: 140, height: 80), borderPaint);
+        canvas.drawRect(Rect.fromCenter(center: Offset(center.dx - 12, center.dy), width: 90, height: 50), dimPaint);
+        canvas.drawRect(Rect.fromLTWH(center.dx + 33, center.dy - 25, 4, 50), Paint()..color = const Color(0xFF30D158));
+
+        _renderLabel(canvas, 'Socket Bore: $bore mm | Depth: $depth mm', Offset(center.dx, center.dy - 55), const Color(0xFF0A84FF));
+        _renderLabel(canvas, 'Fit-up Expansion Gap: 1.6 mm', Offset(center.dx, center.dy + 50), const Color(0xFF30D158));
         break;
 
       case ComponentCategory.threaded:
+        final int tpi = metric.data['tpi'] as int;
         final pathThread = Path();
-        pathThread.moveTo(center.dx - 50, center.dy - 20);
-        for (double x = -50; x <= 50; x += 10) {
-          pathThread.lineTo(center.dx + x + 5, center.dy - 10);
-          pathThread.lineTo(center.dx + x + 10, center.dy - 20);
+        pathThread.moveTo(center.dx - 60, center.dy - 20);
+        for (double x = -60; x <= 60; x += 12) {
+          pathThread.lineTo(center.dx + x + 6, center.dy - 8);
+          pathThread.lineTo(center.dx + x + 12, center.dy - 20);
         }
-        canvas.drawPath(pathThread, paintAccent);
-        _drawText(canvas, 'NPT 1:16 Taper (${record.metrics['tpi']} TPI)', Offset(center.dx, center.dy + 20), const Color(0xFFFF9F0A));
+        canvas.drawPath(pathThread, Paint()..color = const Color(0xFFFF9F0A)..strokeWidth = 2.0..style = PaintingStyle.stroke);
+        _renderLabel(canvas, 'NPT 1:16 Taper ($tpi TPI)', Offset(center.dx, center.dy + 25), const Color(0xFFFF9F0A));
         break;
     }
   }
 
-  void _drawText(Canvas canvas, String text, Offset position, Color color) {
-    final textPainter = TextPainter(
-      text: TextSpan(text: text, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold)),
+  void _renderLabel(Canvas canvas, String text, Offset pos, Color color) {
+    final tp = TextPainter(
+      text: TextSpan(text: text, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: -0.2)),
       textDirection: TextDirection.ltr,
     )..layout();
-    textPainter.paint(canvas, Offset(position.dx - (textPainter.width / 2), position.dy));
+    tp.paint(canvas, Offset(pos.dx - (tp.width / 2), pos.dy));
   }
 
   @override
-  bool shouldRepaint(covariant ComponentSchematicPainter oldDelegate) => true;
+  bool shouldRepaint(covariant SchematicPainter oldDelegate) => true;
 }
