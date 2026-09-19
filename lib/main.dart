@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'core/favorites.dart';
+import 'core/models.dart';
 import 'screens/home_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await PipingMasterCatalog.loadAll();
   await favoritesController.init();
   runApp(const PipingWorkstationApp());
 }

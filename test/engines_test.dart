@@ -2,6 +2,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pipedata_pro/core/models.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    // PipingMasterCatalog.pipes (used by the data-integrity group below)
+    // loads asynchronously from assets/data/pipes.json.
+    await PipingMasterCatalog.loadAll();
+  });
+
   group('PipingStressEngine.calculatePipeMAWP', () {
     test('4" Sch 40 (STD), A106 Gr. B, default (ambient) conditions', () {
       final res = PipingStressEngine.calculatePipeMAWP(
@@ -68,6 +76,7 @@ void main() {
 
   group('PipingMasterCatalog data integrity', () {
     test('every pipe schedule row satisfies ID = OD - 2*thk (within 0.5mm)', () {
+      expect(PipingMasterCatalog.pipes, isNotEmpty, reason: 'pipes dataset failed to load from assets/data/pipes.json');
       final failures = <String>[];
       for (final row in PipingMasterCatalog.pipes) {
         final od = (row['od'] as num).toDouble();

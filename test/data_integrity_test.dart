@@ -7,6 +7,34 @@ import 'package:pipedata_pro/core/models.dart';
 /// They check physically-necessary relationships, not exact reference
 /// values, so they won't flag a merely-imprecise-but-plausible number.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    // Datasets live in assets/data/*.json and load asynchronously — without
+    // this, every PipingMasterCatalog list below is empty and every test in
+    // this file would pass vacuously (0 rows checked) instead of actually
+    // validating anything.
+    await PipingMasterCatalog.loadAll();
+  });
+
+  group('Datasets loaded', () {
+    test('every PipingMasterCatalog list is populated after loadAll()', () {
+      expect(PipingMasterCatalog.pipes, isNotEmpty);
+      expect(PipingMasterCatalog.flanges, isNotEmpty);
+      expect(PipingMasterCatalog.socketWelds, isNotEmpty);
+      expect(PipingMasterCatalog.threadeds, isNotEmpty);
+      expect(PipingMasterCatalog.reducers, isNotEmpty);
+      expect(PipingMasterCatalog.gaskets, isNotEmpty);
+      expect(PipingMasterCatalog.valves, isNotEmpty);
+      expect(PipingMasterCatalog.tees, isNotEmpty);
+      expect(PipingMasterCatalog.elbows, isNotEmpty);
+      expect(PipingMasterCatalog.caps, isNotEmpty);
+      expect(PipingMasterCatalog.weldolets, isNotEmpty);
+      expect(PipingMasterCatalog.sockolets, isNotEmpty);
+      expect(PipingMasterCatalog.threadolets, isNotEmpty);
+    });
+  });
+
   group('Flanges', () {
     test('PCD is always smaller than flange OD, for every size/class', () {
       final failures = <String>[];
