@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import '../core/category_meta.dart';
+import '../core/dimension_builder.dart';
 import '../core/models.dart';
 import '../core/units.dart';
 import '../painters/schematic_painter.dart';
+import 'compare_screen.dart';
 
 class CategoryDetailScreen extends StatefulWidget {
   final ComponentCategory category;
@@ -88,7 +90,14 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
           backgroundColor: const Color(0xF0161618),
           border: Border(bottom: BorderSide(color: _meta.color.withOpacity(0.25), width: 0.6)),
           middle: Text(_meta.label),
-          trailing: _buildUnitToggle(),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildCompareButton(),
+              const SizedBox(width: 8),
+              _buildUnitToggle(),
+            ],
+          ),
         ),
         child: SafeArea(
           child: ListView(
@@ -110,6 +119,30 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildCompareButton() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(CupertinoPageRoute(
+          builder: (_) => CompareScreen(
+            category: _meta.category,
+            initialIndexA: _sizeIdx,
+            initialSubSelectionA: _subSelection,
+            initialValveType: _valveType,
+          ),
+        ));
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1C1C1E),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFF2C2C2E)),
+        ),
+        child: Icon(CupertinoIcons.rectangle_split_2x1, size: 16, color: _meta.color),
       ),
     );
   }
@@ -367,112 +400,12 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   // ---------------- Dimensions ----------------
 
   Widget _buildDimensionsTab(Map<String, dynamic> item) {
-    final Map<String, String> d = {};
-    d['Nominal Pipe Size (NPS)'] = item['nps'] as String;
-    if (item.containsKey('dn')) d['Diameter Nominal'] = 'DN ${item['dn']}';
-
-    switch (_meta.category) {
-      case ComponentCategory.pipe:
-      // NOTE: pipelineTransport is routed straight to PipelineScreen from
-      // HomeScreen._open() and never reaches this screen, so this branch is
-      // currently unreachable here. Kept (rather than removed) only because
-      // it shares the exact schedules/OD/thk/id/weight logic with `pipe`;
-      // if that routing ever changes, this is why the case still exists.
-      case ComponentCategory.pipelineTransport:
-        final schs = item['schedules'] as Map<String, dynamic>;
-        final s = schs[_subSelection] ?? schs.values.first;
-        d['Outside Diameter (OD)'] = unitsController.format(item['od'] as num);
-        d['Schedule / Wall Class'] = _subSelection;
-        d['Wall Thickness (t)'] = unitsController.format(s['thk'] as num);
-        d['Inside Diameter (ID)'] = unitsController.format(s['id'] as num);
-        d['Linear Weight'] = '${s['wt']} kg/m';
-        break;
-      case ComponentCategory.flange:
-        final clss = item['classes'] as Map<String, dynamic>;
-        final f = clss[_subSelection] ?? clss.values.first;
-        d['Pressure Rating'] = _subSelection;
-        d['Flange Outside Diameter (O)'] = unitsController.format(f['od'] as num);
-        d['Minimum Flange Thickness (C)'] = unitsController.format(f['thk'] as num);
-        d['Pitch Circle Diameter (PCD)'] = unitsController.format(f['pcd'] as num);
-        break;
-      case ComponentCategory.tee:
-        d['Center-to-End (C)'] = unitsController.format(item['teeCtoE'] as num);
-        d['Standard'] = 'ASME B16.9 Equal Tee';
-        break;
-      case ComponentCategory.elbow:
-        final angles = item['angles'] as Map<String, dynamic>;
-        final lenMm = (angles[_subSelection] ?? angles.values.first) as num;
-        d['Pattern'] = _subSelection;
-        d['Center-to-End (C)'] = unitsController.format(lenMm);
-        d['Standard'] = 'ASME B16.9';
-        break;
-      case ComponentCategory.cap:
-        d['Length (E)'] = unitsController.format(item['capLen'] as num);
-        d['Standard'] = 'ASME B16.9 Domed Cap';
-        break;
-      case ComponentCategory.socketWeld:
-        d['Socket Bore Diameter'] = unitsController.format(item['boreDia'] as num);
-        d['Socket Minimum Depth'] = unitsController.format(item['depth'] as num);
-        d['Center-to-End Distance'] = unitsController.format(item['cToE'] as num);
-        d['Fitting Minimum Wall'] = unitsController.format(item['minWall'] as num);
-        d['Thermal Fit-up Gap'] = '1.6 mm (1/16")';
-        break;
-      case ComponentCategory.threaded:
-        d['Threads per Inch (TPI)'] = '${item['tpi']}';
-        d['Thread Pitch (p)'] = unitsController.format(item['pitch'] as num, mmDecimals: 3);
-        d['Effective Thread Length (L2)'] = unitsController.format(item['minThreadL2'] as num);
-        d['Standard Taper Ratio'] = '${item['taper']}';
-        break;
-      case ComponentCategory.reducer:
-        final lens = item['lengths'] as Map<String, dynamic>;
-        final lenMm = (lens[_subSelection] ?? lens.values.first) as num;
-        d['Reduction Pattern'] = _subSelection;
-        d['Large End DN'] = 'DN ${item['largeDn']}';
-        d['Small End DN'] = 'DN ${item['smallDn']}';
-        d['Center-to-End Length (H)'] = unitsController.format(lenMm, mmDecimals: 0);
-        d['Standard'] = 'ASME B16.9';
-        break;
-      case ComponentCategory.gasket:
-        final clss = item['classes'] as Map<String, dynamic>;
-        final g = clss[_subSelection] ?? clss.values.first;
-        d['Pressure Class'] = _subSelection;
-        d['Gasket Inside Diameter (ID)'] = unitsController.format(g['id'] as num);
-        d['Gasket Outside Diameter (OD)'] = unitsController.format(g['od'] as num);
-        d['Nominal Thickness'] = unitsController.format(g['thk'] as num);
-        d['Style'] = 'Spiral-Wound, CG (316L windings / flexible graphite filler)';
-        d['Standard'] = 'ASME B16.20';
-        break;
-      case ComponentCategory.valve:
-        final types = item['types'] as Map<String, dynamic>;
-        final classesForType = types[_valveType] as Map<String, dynamic>;
-        final v = classesForType[_subSelection] ?? classesForType.values.first;
-        d['Valve Type'] = _valveType;
-        d['Pressure Class'] = _subSelection;
-        d['Face-to-Face (FtF)'] = unitsController.format(v['ftf'] as num);
-        d['End Connection'] = (v['endConn'] as String?) ?? 'Raised Face Flanged (RF)';
-        if (_valveType == 'Globe Valve' || _valveType == 'Swing Check Valve') {
-          d['Note'] = 'Globe & Swing Check share the ASME B16.10 long-pattern length at this size/class';
-        }
-        d['Standard'] = 'ASME B16.10';
-        break;
-      case ComponentCategory.weldolet:
-        d['Outlet Height (A)'] = unitsController.format(item['height'] as num);
-        d['End Connection'] = 'Butt-Weld Outlet';
-        d['Standard'] = 'MSS SP-97 (size-on-size, STD)';
-        break;
-      case ComponentCategory.sockolet:
-        d['Outlet Height (A)'] = unitsController.format(item['height'] as num);
-        d['Socket Depth'] = unitsController.format(item['socketDepth'] as num);
-        d['End Connection'] = 'Socket-Weld Outlet';
-        d['Standard'] = 'MSS SP-97 (size-on-size, Class 3000)';
-        break;
-      case ComponentCategory.threadolet:
-        d['Outlet Height (A)'] = unitsController.format(item['height'] as num);
-        d['End Connection'] = 'NPT Threaded Outlet';
-        d['Standard'] = 'MSS SP-97 (size-on-size, Class 3000)';
-        break;
-    }
-
+    final d = buildDimensionRows(
+      category: _meta.category,
+      item: item,
+      subSelection: _subSelection,
+      valveType: _valveType,
+    );
     return _card(d.entries.map((e) => _dataRow(e.key, e.value)).toList());
   }
 
