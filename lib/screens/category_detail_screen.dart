@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import '../core/category_meta.dart';
 import '../core/models.dart';
+import '../core/units.dart';
 import '../painters/schematic_painter.dart';
 
 class CategoryDetailScreen extends StatefulWidget {
@@ -76,31 +77,56 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   Widget build(BuildContext context) {
     final item = _dataset[_sizeIdx];
 
-    return CupertinoPageScaffold(
-      backgroundColor: const Color(0xFF000000),
-      navigationBar: CupertinoNavigationBar(
-        backgroundColor: const Color(0xF0161618),
-        border: Border(bottom: BorderSide(color: _meta.color.withOpacity(0.25), width: 0.6)),
-        middle: Text(_meta.label),
+    // Wraps navigationBar + body together so the unit-toggle button's own
+    // label ('mm'/'in') and every formatted dimension in the body update
+    // together on tap, without needing a full State.setState().
+    return ValueListenableBuilder<LengthUnit>(
+      valueListenable: unitsController,
+      builder: (context, _, __) => CupertinoPageScaffold(
+        backgroundColor: const Color(0xFF000000),
+        navigationBar: CupertinoNavigationBar(
+          backgroundColor: const Color(0xF0161618),
+          border: Border(bottom: BorderSide(color: _meta.color.withOpacity(0.25), width: 0.6)),
+          middle: Text(_meta.label),
+          trailing: _buildUnitToggle(),
+        ),
+        child: SafeArea(
+          child: ListView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
+            children: [
+              _buildStandardBadge(),
+              const SizedBox(height: 10),
+              if (_dataset.length > 6) _buildSizeSearch(),
+              _buildSizeChips(),
+              if (_meta.category == ComponentCategory.valve) _buildValveTypeChips(item),
+              if (_meta.subOptionKind != SubOptionKind.none) _buildSubOptionChips(item),
+              const SizedBox(height: 8),
+              _buildSchematicCard(item),
+              const SizedBox(height: 14),
+              _buildTabSwitcher(),
+              const SizedBox(height: 10),
+              _buildActiveContent(item),
+            ],
+          ),
+        ),
       ),
-      child: SafeArea(
-        child: ListView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
-          children: [
-            _buildStandardBadge(),
-            const SizedBox(height: 10),
-            if (_dataset.length > 6) _buildSizeSearch(),
-            _buildSizeChips(),
-            if (_meta.category == ComponentCategory.valve) _buildValveTypeChips(item),
-            if (_meta.subOptionKind != SubOptionKind.none) _buildSubOptionChips(item),
-            const SizedBox(height: 8),
-            _buildSchematicCard(item),
-            const SizedBox(height: 14),
-            _buildTabSwitcher(),
-            const SizedBox(height: 10),
-            _buildActiveContent(item),
-          ],
+    );
+  }
+
+  Widget _buildUnitToggle() {
+    return GestureDetector(
+      onTap: () => unitsController.toggle(),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1C1C1E),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFF2C2C2E)),
+        ),
+        child: Text(
+          unitsController.value == LengthUnit.mm ? 'mm' : 'in',
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _meta.color),
         ),
       ),
     );
@@ -347,49 +373,54 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
 
     switch (_meta.category) {
       case ComponentCategory.pipe:
+      // NOTE: pipelineTransport is routed straight to PipelineScreen from
+      // HomeScreen._open() and never reaches this screen, so this branch is
+      // currently unreachable here. Kept (rather than removed) only because
+      // it shares the exact schedules/OD/thk/id/weight logic with `pipe`;
+      // if that routing ever changes, this is why the case still exists.
       case ComponentCategory.pipelineTransport:
         final schs = item['schedules'] as Map<String, dynamic>;
         final s = schs[_subSelection] ?? schs.values.first;
-        d['Outside Diameter (OD)'] = '${item['od']} mm';
+        d['Outside Diameter (OD)'] = unitsController.format(item['od'] as num);
         d['Schedule / Wall Class'] = _subSelection;
-        d['Wall Thickness (t)'] = '${s['thk']} mm';
-        d['Inside Diameter (ID)'] = '${s['id']} mm';
+        d['Wall Thickness (t)'] = unitsController.format(s['thk'] as num);
+        d['Inside Diameter (ID)'] = unitsController.format(s['id'] as num);
         d['Linear Weight'] = '${s['wt']} kg/m';
         break;
       case ComponentCategory.flange:
         final clss = item['classes'] as Map<String, dynamic>;
         final f = clss[_subSelection] ?? clss.values.first;
         d['Pressure Rating'] = _subSelection;
-        d['Flange Outside Diameter (O)'] = '${f['od']} mm';
-        d['Minimum Flange Thickness (C)'] = '${f['thk']} mm';
-        d['Pitch Circle Diameter (PCD)'] = '${f['pcd']} mm';
+        d['Flange Outside Diameter (O)'] = unitsController.format(f['od'] as num);
+        d['Minimum Flange Thickness (C)'] = unitsController.format(f['thk'] as num);
+        d['Pitch Circle Diameter (PCD)'] = unitsController.format(f['pcd'] as num);
         break;
       case ComponentCategory.tee:
-        d['Center-to-End (C)'] = '${item['teeCtoE']} mm';
+        d['Center-to-End (C)'] = unitsController.format(item['teeCtoE'] as num);
         d['Standard'] = 'ASME B16.9 Equal Tee';
         break;
       case ComponentCategory.elbow:
         final angles = item['angles'] as Map<String, dynamic>;
         final lenMm = (angles[_subSelection] ?? angles.values.first) as num;
         d['Pattern'] = _subSelection;
-        d['Center-to-End (C)'] = '${lenMm.toStringAsFixed(1)} mm';
+        d['Center-to-End (C)'] = unitsController.format(lenMm);
         d['Standard'] = 'ASME B16.9';
         break;
       case ComponentCategory.cap:
-        d['Length (E)'] = '${item['capLen']} mm';
+        d['Length (E)'] = unitsController.format(item['capLen'] as num);
         d['Standard'] = 'ASME B16.9 Domed Cap';
         break;
       case ComponentCategory.socketWeld:
-        d['Socket Bore Diameter'] = '${item['boreDia']} mm';
-        d['Socket Minimum Depth'] = '${item['depth']} mm';
-        d['Center-to-End Distance'] = '${item['cToE']} mm';
-        d['Fitting Minimum Wall'] = '${item['minWall']} mm';
+        d['Socket Bore Diameter'] = unitsController.format(item['boreDia'] as num);
+        d['Socket Minimum Depth'] = unitsController.format(item['depth'] as num);
+        d['Center-to-End Distance'] = unitsController.format(item['cToE'] as num);
+        d['Fitting Minimum Wall'] = unitsController.format(item['minWall'] as num);
         d['Thermal Fit-up Gap'] = '1.6 mm (1/16")';
         break;
       case ComponentCategory.threaded:
         d['Threads per Inch (TPI)'] = '${item['tpi']}';
-        d['Thread Pitch (p)'] = '${item['pitch']} mm';
-        d['Effective Thread Length (L2)'] = '${item['minThreadL2']} mm';
+        d['Thread Pitch (p)'] = unitsController.format(item['pitch'] as num, mmDecimals: 3);
+        d['Effective Thread Length (L2)'] = unitsController.format(item['minThreadL2'] as num);
         d['Standard Taper Ratio'] = '${item['taper']}';
         break;
       case ComponentCategory.reducer:
@@ -398,16 +429,16 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
         d['Reduction Pattern'] = _subSelection;
         d['Large End DN'] = 'DN ${item['largeDn']}';
         d['Small End DN'] = 'DN ${item['smallDn']}';
-        d['Center-to-End Length (H)'] = '${lenMm.toStringAsFixed(0)} mm';
+        d['Center-to-End Length (H)'] = unitsController.format(lenMm, mmDecimals: 0);
         d['Standard'] = 'ASME B16.9';
         break;
       case ComponentCategory.gasket:
         final clss = item['classes'] as Map<String, dynamic>;
         final g = clss[_subSelection] ?? clss.values.first;
         d['Pressure Class'] = _subSelection;
-        d['Gasket Inside Diameter (ID)'] = '${g['id']} mm';
-        d['Gasket Outside Diameter (OD)'] = '${g['od']} mm';
-        d['Nominal Thickness'] = '${g['thk']} mm';
+        d['Gasket Inside Diameter (ID)'] = unitsController.format(g['id'] as num);
+        d['Gasket Outside Diameter (OD)'] = unitsController.format(g['od'] as num);
+        d['Nominal Thickness'] = unitsController.format(g['thk'] as num);
         d['Style'] = 'Spiral-Wound, CG (316L windings / flexible graphite filler)';
         d['Standard'] = 'ASME B16.20';
         break;
@@ -417,7 +448,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
         final v = classesForType[_subSelection] ?? classesForType.values.first;
         d['Valve Type'] = _valveType;
         d['Pressure Class'] = _subSelection;
-        d['Face-to-Face (FtF)'] = '${v['ftf']} mm';
+        d['Face-to-Face (FtF)'] = unitsController.format(v['ftf'] as num);
         d['End Connection'] = (v['endConn'] as String?) ?? 'Raised Face Flanged (RF)';
         if (_valveType == 'Globe Valve' || _valveType == 'Swing Check Valve') {
           d['Note'] = 'Globe & Swing Check share the ASME B16.10 long-pattern length at this size/class';
@@ -425,18 +456,18 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
         d['Standard'] = 'ASME B16.10';
         break;
       case ComponentCategory.weldolet:
-        d['Outlet Height (A)'] = '${item['height']} mm';
+        d['Outlet Height (A)'] = unitsController.format(item['height'] as num);
         d['End Connection'] = 'Butt-Weld Outlet';
         d['Standard'] = 'MSS SP-97 (size-on-size, STD)';
         break;
       case ComponentCategory.sockolet:
-        d['Outlet Height (A)'] = '${item['height']} mm';
-        d['Socket Depth'] = '${item['socketDepth']} mm';
+        d['Outlet Height (A)'] = unitsController.format(item['height'] as num);
+        d['Socket Depth'] = unitsController.format(item['socketDepth'] as num);
         d['End Connection'] = 'Socket-Weld Outlet';
         d['Standard'] = 'MSS SP-97 (size-on-size, Class 3000)';
         break;
       case ComponentCategory.threadolet:
-        d['Outlet Height (A)'] = '${item['height']} mm';
+        d['Outlet Height (A)'] = unitsController.format(item['height'] as num);
         d['End Connection'] = 'NPT Threaded Outlet';
         d['Standard'] = 'MSS SP-97 (size-on-size, Class 3000)';
         break;
@@ -465,13 +496,14 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
               _dataRow('Allowable Working Pressure (MAWP)', '${res.mawpBar} Bar (${res.mawpPsi} PSI)', highlight: const Color(0xFF30D158)),
               _dataRow('ASME Hydrostatic Test Pressure (1.5x)', '${res.hydroTestBar} Bar (${res.hydroTestPsi} PSI)', highlight: const Color(0xFF0A84FF)),
               _dataRow('Allowable Stress (S @ 38°C)', '${res.allowableStressMpa} MPa'),
-              _dataRow('Mill Under-Tolerance (-12.5%)', '${(thk * 0.125).toStringAsFixed(2)} mm'),
-              _dataRow('Corrosion Allowance Included', '1.5 mm'),
-              _dataRow('Net Structural Wall (t_min)', '${res.netTMin} mm'),
+              _dataRow('Mill Under-Tolerance (-12.5%)', unitsController.format(thk * 0.125)),
+              _dataRow('Corrosion Allowance Included', unitsController.format(1.5)),
+              _dataRow('Net Structural Wall (t_min)', unitsController.format(res.netTMin)),
             ]),
           ],
         );
 
+      // Same unreachable-via-this-screen note as in _buildDimensionsTab above.
       case ComponentCategory.pipelineTransport:
         return _card([
           _dataRow('Design Factor & MAOP', 'See the Pipeline calculator', highlight: const Color(0xFFFF453A)),
@@ -524,7 +556,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
       return _card([
         _dataRow('Bolt Stud Diameter', '${flg['boltSize']} UNC'),
         _dataRow('Stud Bolt Quantity', '${flg['bolts']} Studs'),
-        _dataRow('Recommended Stud Length', '${flg['studLen']} mm'),
+        _dataRow('Recommended Stud Length', unitsController.format(flg['studLen'] as num)),
         _dataRow('Recommended Tightening Torque', '${flg['torqueNm']} N·m (${(flg['torqueNm'] * 0.7375).toStringAsFixed(0)} ft-lb)', highlight: const Color(0xFFFF9F0A)),
         _dataRow('Gasket Standard', 'ASME B16.20 Spiral Wound (316L/Graphite)'),
       ]);

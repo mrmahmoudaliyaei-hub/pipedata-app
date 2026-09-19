@@ -56,6 +56,9 @@ class CategoryRegistry {
   static const _cyan = Color(0xFF6AC4DC);
   static const _green = Color(0xFF30D158);
   static const _skyBlue = Color(0xFF409CFF);
+  // Distinct from _red (Valves) — Pipeline (Transport) used to share _red,
+  // which broke the "one accent per category" rule; this is its own accent.
+  static const _crimson = Color(0xFFFF6482);
 
   static final List<CategoryMeta> _all = [
     CategoryMeta(
@@ -180,7 +183,7 @@ class CategoryRegistry {
       label: 'Pipeline (Transport)',
       standard: 'ASME B31.4',
       icon: CupertinoIcons.drop,
-      color: _red,
+      color: _crimson,
       subOptionKind: SubOptionKind.schedules,
       dataset: () => PipingMasterCatalog.pipes,
     ),
@@ -208,7 +211,7 @@ class CategoryRegistry {
       of(ComponentCategory.sockolet),
       of(ComponentCategory.threadolet),
     ]),
-    CategoryGroup('Pipeline Transport', _red, [
+    CategoryGroup('Pipeline Transport', _crimson, [
       of(ComponentCategory.pipelineTransport),
     ]),
   ];

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import '../core/models.dart';
+import '../core/units.dart';
 import '../painters/schematic_painter.dart';
 
 /// ASME B31.4 liquid transport pipeline MAOP calculator. Reuses the same
@@ -44,11 +45,19 @@ class _PipelineScreenState extends State<PipelineScreen> {
     final thk = (currentSch['thk'] as num).toDouble();
     final res = PipelineTransportEngine.calculateMAOP(outerDiameterMm: od, nominalWallThkMm: thk, grade: _grade);
 
+    return ValueListenableBuilder<LengthUnit>(
+      valueListenable: unitsController,
+      builder: (context, _, __) => _buildScaffold(context, item, od, thk, res),
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context, Map<String, dynamic> item, double od, double thk, PipelineCalculationResult res) {
     return CupertinoPageScaffold(
       backgroundColor: const Color(0xFF000000),
-      navigationBar: const CupertinoNavigationBar(
-        backgroundColor: Color(0xF0161618),
-        middle: Text('Pipeline (Transport)'),
+      navigationBar: CupertinoNavigationBar(
+        backgroundColor: const Color(0xF0161618),
+        middle: const Text('Pipeline (Transport)'),
+        trailing: _buildUnitToggle(),
       ),
       child: SafeArea(
         child: ListView(
@@ -92,8 +101,8 @@ class _PipelineScreenState extends State<PipelineScreen> {
                   _dataRow('Hydrostatic Test Pressure (1.25x MAOP)', '${res.hydroTestBar} Bar (${res.hydroTestPsi} PSI)', highlight: const Color(0xFF0A84FF)),
                   _dataRow('SMYS ($_gradeLabelText)', '${res.smysMpa.toStringAsFixed(0)} MPa'),
                   _dataRow('Design Factor (F)', res.designFactor.toStringAsFixed(2), highlight: const Color(0xFFFF453A)),
-                  _dataRow('Outside Diameter (D)', '${od.toStringAsFixed(2)} mm'),
-                  _dataRow('Nominal Wall Thickness (t)', '${thk.toStringAsFixed(2)} mm'),
+                  _dataRow('Outside Diameter (D)', unitsController.format(od)),
+                  _dataRow('Nominal Wall Thickness (t)', unitsController.format(thk)),
                 ],
               ),
             ),
@@ -116,6 +125,24 @@ class _PipelineScreenState extends State<PipelineScreen> {
   }
 
   String get _gradeLabelText => _gradeLabels[_grade]!;
+
+  Widget _buildUnitToggle() {
+    return GestureDetector(
+      onTap: () => unitsController.toggle(),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1C1C1E),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFF2C2C2E)),
+        ),
+        child: Text(
+          unitsController.value == LengthUnit.mm ? 'mm' : 'in',
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFFF453A)),
+        ),
+      ),
+    );
+  }
 
   Widget _sectionLabel(String text) {
     return Padding(
