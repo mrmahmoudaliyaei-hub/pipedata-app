@@ -100,7 +100,7 @@ class VectorBlueprintPainter extends CustomPainter {
 
         _drawCrosshairs(canvas, center, rOut + 16, lineCenter);
         _drawDimension(canvas, Offset(center.dx - rOut, center.dy), Offset(center.dx + rOut, center.dy), 'OD: ${od.toStringAsFixed(1)} mm', lineDim);
-        final label = category == ComponentCategory.pipelineTransport ? 't: ${thk} mm (Transport Line)' : 't: ${thk} mm (Bevel 37.5°)';
+        final label = category == ComponentCategory.pipelineTransport ? 't: $thk mm (Transport Line)' : 't: $thk mm (Bevel 37.5°)';
         _drawLeader(canvas, Offset(center.dx + (rOut + rIn) / 2, center.dy - 8), Offset(center.dx + rOut + 25, center.dy - 35), label, accent);
         break;
 
@@ -233,7 +233,7 @@ class VectorBlueprintPainter extends CustomPainter {
         canvas.drawRect(Rect.fromLTWH(center.dx + 30, center.dy - 25, 4, 50), Paint()..color = const Color(0xFF30D158));
 
         _drawLeader(canvas, Offset(center.dx + 32, center.dy), Offset(center.dx + 45, center.dy + 45), 'Mandatory Gap: 1.6 mm', lineWeld);
-        _drawDimension(canvas, Offset(center.dx - 60, center.dy + 25), Offset(center.dx + 30, center.dy + 25), 'Bore Depth: ${depth} mm', lineDim);
+        _drawDimension(canvas, Offset(center.dx - 60, center.dy + 25), Offset(center.dx + 30, center.dy + 25), 'Bore Depth: $depth mm', lineDim);
         break;
 
       case ComponentCategory.threaded:
@@ -255,9 +255,9 @@ class VectorBlueprintPainter extends CustomPainter {
         final lengths = data['lengths'] as Map<String, dynamic>;
         final double lenMm = ((lengths[subType] ?? lengths.values.first) as num).toDouble();
         final bool eccentric = subType == 'Eccentric';
-        final double halfLen = 60.0;
-        final double rLarge = 46.0;
-        final double rSmall = 22.0;
+        const double halfLen = 60.0;
+        const double rLarge = 46.0;
+        const double rSmall = 22.0;
 
         final Path body = Path()
           ..moveTo(center.dx - halfLen, center.dy - rLarge)
@@ -322,9 +322,9 @@ class VectorBlueprintPainter extends CustomPainter {
       case ComponentCategory.sockolet:
       case ComponentCategory.threadolet:
         final double height = ((data['height'] ?? 40.0) as num).toDouble();
-        final double runHalfW = 85.0;
-        final double runH = 40.0;
-        final double stubW = 26.0;
+        const double runHalfW = 85.0;
+        const double runH = 40.0;
+        const double stubW = 26.0;
         final double stubTop = center.dy - runH / 2 - 60;
 
         final runRect = Rect.fromCenter(center: Offset(center.dx, center.dy + 30), width: runHalfW * 2, height: runH);

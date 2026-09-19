@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'category_meta.dart';
+import 'models.dart';
 
 /// One bookmarked (category, size, sub-option) combination — e.g.
 /// "4" Flange, Class 300" or "6" Elbow, 90° Long Radius".

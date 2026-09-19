@@ -37,13 +37,13 @@ class _CompareScreenState extends State<CompareScreen> {
   late final List<Map<String, dynamic>> _dataset = _meta.dataset();
   static const List<String> _valveTypes = ['Gate Valve', 'Globe Valve', 'Ball Valve', 'Swing Check Valve'];
 
-  late _CompareItemState _a = _CompareItemState(
+  late final _CompareItemState _a = _CompareItemState(
     index: widget.initialIndexA,
     subSelection: widget.initialSubSelectionA,
     valveType: widget.initialValveType,
   );
   // B starts one size up from A (wrapping), so the two cards differ by default.
-  late _CompareItemState _b = _CompareItemState(
+  late final _CompareItemState _b = _CompareItemState(
     index: (widget.initialIndexA + 1) % _dataset.length,
     subSelection: widget.initialSubSelectionA,
     valveType: widget.initialValveType,

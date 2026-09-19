@@ -50,10 +50,10 @@ class _HomeScreenState extends State<HomeScreen> {
       child: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          CupertinoSliverNavigationBar(
-            backgroundColor: const Color(0xFF000000),
+          const CupertinoSliverNavigationBar(
+            backgroundColor: Color(0xFF000000),
             border: null,
-            largeTitle: const Text('Piping Data Pro'),
+            largeTitle: Text('Piping Data Pro'),
           ),
           SliverToBoxAdapter(
             child: Padding(
@@ -131,11 +131,11 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                const Row(
                   children: [
-                    const Icon(CupertinoIcons.star_fill, color: Color(0xFFFFD60A), size: 13),
-                    const SizedBox(width: 6),
-                    const Text(
+                    Icon(CupertinoIcons.star_fill, color: Color(0xFFFFD60A), size: 13),
+                    SizedBox(width: 6),
+                    Text(
                       'FAVORITES',
                       style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF8E8E93), letterSpacing: 0.6),
                     ),

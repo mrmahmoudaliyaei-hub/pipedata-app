@@ -188,7 +188,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: const Color(0xFF2C2C2E)),
         ),
-        child: Icon(CupertinoIcons.rectangle_split_2x1, size: 16, color: _meta.color),
+        child: Icon(CupertinoIcons.arrow_left_right, size: 16, color: _meta.color),
       ),
     );
   }

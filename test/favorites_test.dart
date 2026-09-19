@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pipedata_pro/core/favorites.dart';
-import 'package:pipedata_pro/core/category_meta.dart';
+import 'package:pipedata_pro/core/models.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
