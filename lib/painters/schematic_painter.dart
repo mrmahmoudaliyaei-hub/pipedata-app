@@ -533,18 +533,44 @@ class VectorBlueprintPainter extends CustomPainter {
     switch (type) {
       case 'Gate Valve':
         drawEndFlanges();
-        final bowtie = Path()
-          ..moveTo(center.dx - halfLen + 8, center.dy - bodyR)
-          ..lineTo(center.dx, center.dy)
-          ..lineTo(center.dx - halfLen + 8, center.dy + bodyR)
-          ..close()
-          ..moveTo(center.dx + halfLen - 8, center.dy - bodyR)
-          ..lineTo(center.dx, center.dy)
-          ..lineTo(center.dx + halfLen - 8, center.dy + bodyR)
+        // Body casting: a rounded block (not the old bowtie-only shape)
+        // with a distinct neck rising to the bonnet, plus a faint internal
+        // wedge hint instead of the wedge shape *being* the whole body.
+        const double neckH = 12.0;
+        const double neckTopHalfW = 8.0;
+        const double neckBottomHalfW = 13.0;
+        final double bodyTop = center.dy - 18;
+        final double bodyBottom = center.dy + 28;
+        final double bodyLeft = center.dx - halfLen + 6;
+        final double bodyRight = center.dx + halfLen - 6;
+        final double neckTopY = bodyTop - neckH;
+
+        final bodyRect = RRect.fromRectAndRadius(Rect.fromLTRB(bodyLeft, bodyTop, bodyRight, bodyBottom), const Radius.circular(10));
+        final neckPath = Path()
+          ..moveTo(center.dx - neckBottomHalfW, bodyTop + 2)
+          ..lineTo(center.dx - neckTopHalfW, neckTopY)
+          ..lineTo(center.dx + neckTopHalfW, neckTopY)
+          ..lineTo(center.dx + neckBottomHalfW, bodyTop + 2)
           ..close();
-        canvas.drawPath(bowtie, bodyFill(Rect.fromLTRB(center.dx - halfLen, center.dy - bodyR, center.dx + halfLen, center.dy + bodyR)));
-        canvas.drawPath(bowtie, flangeOutline);
-        drawHandwheelStem(center.dy - bodyR * 0.15);
+        final combinedBody = Path()
+          ..addRRect(bodyRect)
+          ..addPath(neckPath, Offset.zero);
+        canvas.drawPath(combinedBody, bodyFill(Rect.fromLTRB(bodyLeft, neckTopY, bodyRight, bodyBottom)));
+        canvas.drawRRect(bodyRect, flangeOutline);
+        canvas.drawPath(neckPath, flangeOutline..strokeWidth = 2.2);
+
+        // Faint internal wedge hint (the actual gate) instead of a bold
+        // bowtie dominating the whole silhouette.
+        final wedgeHint = Path()
+          ..moveTo(bodyLeft + 10, center.dy - 12)
+          ..lineTo(center.dx, center.dy)
+          ..lineTo(bodyLeft + 10, center.dy + 18)
+          ..moveTo(bodyRight - 10, center.dy - 12)
+          ..lineTo(center.dx, center.dy)
+          ..lineTo(bodyRight - 10, center.dy + 18);
+        canvas.drawPath(wedgeHint, Paint()..color = const Color(0x66F2F2F7)..strokeWidth = 1.3..style = PaintingStyle.stroke);
+
+        drawHandwheelStem(neckTopY);
         break;
 
       case 'Ball Valve':
