@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import '../core/category_meta.dart';
 import '../core/dimension_builder.dart';
+import '../core/favorites.dart';
 import '../core/models.dart';
 import '../core/pdf_export.dart';
 import '../core/units.dart';
@@ -9,7 +10,17 @@ import 'compare_screen.dart';
 
 class CategoryDetailScreen extends StatefulWidget {
   final ComponentCategory category;
-  const CategoryDetailScreen({super.key, required this.category});
+  final int initialSizeIdx;
+  final String? initialSubSelection;
+  final String initialValveType;
+
+  const CategoryDetailScreen({
+    super.key,
+    required this.category,
+    this.initialSizeIdx = 0,
+    this.initialSubSelection,
+    this.initialValveType = 'Gate Valve',
+  });
 
   @override
   State<CategoryDetailScreen> createState() => _CategoryDetailScreenState();
@@ -35,6 +46,11 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   void initState() {
     super.initState();
     _meta = CategoryRegistry.of(widget.category);
+    _valveType = widget.initialValveType;
+    if (widget.initialSizeIdx >= 0 && widget.initialSizeIdx < _dataset.length) {
+      _sizeIdx = widget.initialSizeIdx;
+    }
+    if (widget.initialSubSelection != null) _subSelection = widget.initialSubSelection!;
     _syncSubSelection();
   }
 
@@ -107,7 +123,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
             children: [
-              _buildStandardBadge(),
+              _buildStandardBadge(item),
               const SizedBox(height: 10),
               if (_dataset.length > 6) _buildSizeSearch(),
               _buildSizeChips(),
@@ -195,8 +211,9 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
     );
   }
 
-  Widget _buildStandardBadge() {
+  Widget _buildStandardBadge(Map<String, dynamic> item) {
     final Color c = _meta.color;
+    final entry = FavoriteEntry(category: _meta.category, index: _sizeIdx, subSelection: _subSelection, valveType: _valveType);
     return Row(
       children: [
         Container(
@@ -215,6 +232,21 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
           ),
         ),
         const Spacer(),
+        AnimatedBuilder(
+          animation: favoritesController,
+          builder: (context, _) {
+            final isFav = favoritesController.isFavorite(entry);
+            return GestureDetector(
+              onTap: () => favoritesController.toggle(entry),
+              child: Icon(
+                isFav ? CupertinoIcons.star_fill : CupertinoIcons.star,
+                color: isFav ? const Color(0xFFFFD60A) : const Color(0xFF8E8E93),
+                size: 20,
+              ),
+            );
+          },
+        ),
+        const SizedBox(width: 10),
         Container(
           width: 8,
           height: 8,

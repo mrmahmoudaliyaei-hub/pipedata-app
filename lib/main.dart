@@ -1,7 +1,12 @@
 import 'package:flutter/cupertino.dart';
+import 'core/favorites.dart';
 import 'screens/home_screen.dart';
 
-void main() => runApp(const PipingWorkstationApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await favoritesController.init();
+  runApp(const PipingWorkstationApp());
+}
 
 class PipingWorkstationApp extends StatelessWidget {
   const PipingWorkstationApp({super.key});

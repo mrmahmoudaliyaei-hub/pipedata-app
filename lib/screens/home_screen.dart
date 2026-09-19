@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import '../core/category_meta.dart';
+import '../core/favorites.dart';
 import '../core/models.dart';
 import '../widgets/category_card.dart';
 import 'category_detail_screen.dart';
@@ -15,12 +16,28 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String _query = '';
 
-  void _open(CategoryMeta meta) {
+  void _open(CategoryMeta meta, {int sizeIdx = 0, String? subSelection, String valveType = 'Gate Valve'}) {
     if (meta.category == ComponentCategory.pipelineTransport) {
       Navigator.of(context).push(CupertinoPageRoute(builder: (_) => const PipelineScreen()));
     } else {
-      Navigator.of(context).push(CupertinoPageRoute(builder: (_) => CategoryDetailScreen(category: meta.category)));
+      Navigator.of(context).push(CupertinoPageRoute(
+        builder: (_) => CategoryDetailScreen(
+          category: meta.category,
+          initialSizeIdx: sizeIdx,
+          initialSubSelection: subSelection,
+          initialValveType: valveType,
+        ),
+      ));
     }
+  }
+
+  void _openFavorite(FavoriteEntry entry) {
+    _open(
+      CategoryRegistry.of(entry.category),
+      sizeIdx: entry.index,
+      subSelection: entry.subSelection,
+      valveType: entry.valveType,
+    );
   }
 
   @override
@@ -78,6 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
+          if (!searching) _buildFavoritesSliver(),
           if (searching)
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
@@ -97,6 +115,68 @@ class _HomeScreenState extends State<HomeScreen> {
           else
             ..._buildGroupedSlivers(),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFavoritesSliver() {
+    return SliverToBoxAdapter(
+      child: AnimatedBuilder(
+        animation: favoritesController,
+        builder: (context, _) {
+          final entries = favoritesController.entries;
+          if (entries.isEmpty) return const SizedBox.shrink();
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(18, 6, 0, 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(CupertinoIcons.star_fill, color: Color(0xFFFFD60A), size: 13),
+                    const SizedBox(width: 6),
+                    const Text(
+                      'FAVORITES',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF8E8E93), letterSpacing: 0.6),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 36,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.only(right: 16),
+                    itemCount: entries.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    itemBuilder: (context, i) {
+                      final entry = entries[i];
+                      final meta = CategoryRegistry.of(entry.category);
+                      final dataset = meta.dataset();
+                      final nps = entry.index < dataset.length ? dataset[entry.index]['nps'] as String : '?';
+                      return GestureDetector(
+                        onTap: () => _openFavorite(entry),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: meta.color.withOpacity(0.14),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: meta.color.withOpacity(0.35)),
+                          ),
+                          child: Text(
+                            '$nps ${meta.label}',
+                            style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: meta.color),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
