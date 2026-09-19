@@ -538,8 +538,56 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
       case ComponentCategory.weldolet:
       case ComponentCategory.sockolet:
       case ComponentCategory.threadolet:
-        return _note('Branch outlet fittings are rated by the run pipe\'s schedule and the reinforcement area at the outlet per MSS SP-97 / ASME B31.3 Ch. II, Part 4 — a full area-replacement check is outside this quick-reference tool.');
+        return _buildReinforcementNote();
     }
+  }
+
+  Widget _buildReinforcementNote() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      decoration: BoxDecoration(color: const Color(0xFF161618), borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Branch reinforcement — area-replacement method (ASME B31.3 §304.3.3)',
+            style: TextStyle(color: Color(0xFFAEAEB2), fontSize: 12, fontWeight: FontWeight.w700, height: 1.4),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'For a 90° branch, the area removed by the outlet must be replaced within the reinforcement zone:',
+            style: TextStyle(color: Color(0xFF8E8E93), fontSize: 11.5, height: 1.4),
+          ),
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(color: const Color(0xFF0E0E10), borderRadius: BorderRadius.circular(8)),
+            child: const Text(
+              'A1 = d1 · th\nA2 + A3 + A4  ≥  A1',
+              style: TextStyle(color: Color(0xFFFF9F0A), fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'monospace', height: 1.5),
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'A1: required area · d1: branch opening in the run wall · th: run pipe\'s '
+            'pressure design thickness (from the design pressure, NOT the schedule\'s '
+            'nominal wall) · A2: excess run wall in the reinforcement zone · A3: excess '
+            'branch wall in the zone · A4: attached weld metal.',
+            style: TextStyle(color: Color(0xFF8E8E93), fontSize: 10.5, height: 1.4),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'This tool doesn\'t collect a design pressure, temperature, or corrosion '
+            'allowance for branch outlets, so it can\'t compute th (or A1-A4) for this '
+            'specific item — showing a pass/fail here without those inputs would be a '
+            'guess dressed up as a calculation. Run the full check in a proper piping '
+            'stress tool (or by hand from the formula above) before use in a real design.',
+            style: TextStyle(color: Color(0xFF8E8E93), fontSize: 11, height: 1.4),
+          ),
+        ],
+      ),
+    );
   }
 
   // ---------------- Bolting ----------------
