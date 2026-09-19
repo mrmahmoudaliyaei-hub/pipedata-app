@@ -473,25 +473,41 @@ class VectorBlueprintPainter extends CustomPainter {
     }
 
     void drawHandwheelStem(double topY) {
-      // Bonnet block between the body and the stem — the reference elevation
-      // drawings always show this as a distinct step, not a bare rod.
-      final bonnetRect = Rect.fromLTRB(center.dx - 9, topY - 9, center.dx + 9, topY);
+      // Bonnet block between the body and the stem.
+      final bonnetRect = Rect.fromLTRB(center.dx - 8, topY - 8, center.dx + 8, topY);
       canvas.drawRect(bonnetRect, bodyFill(bonnetRect, lightness: 0.32));
       canvas.drawRect(bonnetRect, flangeOutline..strokeWidth = 2.0);
 
-      final double stemTopY = topY - 9 - 14;
-      canvas.drawLine(Offset(center.dx, topY - 9), Offset(center.dx, stemTopY), Paint()..color = const Color(0xFF30D158)..strokeWidth = 2.4);
+      // Yoke: two struts flaring outward from the bonnet up to a stem-nut
+      // block, the way a real handwheel-operated valve actually holds its
+      // wheel off the body — instead of a single bare rod. Sized to still
+      // fit above Globe Valve's higher-starting stem (topY = body top, not
+      // Gate's lower near-centerline attach point).
+      final double yokeBottomY = topY - 8;
+      final double yokeTopY = yokeBottomY - 9;
+      final yokePath = Path()
+        ..moveTo(center.dx - 5, yokeBottomY)
+        ..lineTo(center.dx - 10, yokeTopY)
+        ..moveTo(center.dx + 5, yokeBottomY)
+        ..lineTo(center.dx + 10, yokeTopY);
+      canvas.drawPath(yokePath, Paint()..color = const Color(0xFFD1D1D6)..strokeWidth = 1.8..style = PaintingStyle.stroke..strokeCap = StrokeCap.round);
+      final nutRect = Rect.fromLTRB(center.dx - 5, yokeTopY - 3, center.dx + 5, yokeTopY);
+      canvas.drawRect(nutRect, metalDark);
+      canvas.drawRect(nutRect, flangeOutline..strokeWidth = 1.4);
+
+      final double stemTopY = yokeTopY - 3 - 6;
+      canvas.drawLine(Offset(center.dx, yokeTopY - 3), Offset(center.dx, stemTopY), Paint()..color = const Color(0xFF30D158)..strokeWidth = 2.0);
 
       // Handwheel: rim + hub + 4 spokes, instead of a single crossbar.
-      final wheelCenter = Offset(center.dx, stemTopY - 7);
-      const double wheelR = 8.5;
+      final wheelCenter = Offset(center.dx, stemTopY - 5);
+      const double wheelR = 7.0;
       canvas.drawCircle(wheelCenter, wheelR, metal);
-      canvas.drawCircle(wheelCenter, wheelR, flangeOutline..strokeWidth = 1.8);
+      canvas.drawCircle(wheelCenter, wheelR, flangeOutline..strokeWidth = 1.6);
       canvas.drawCircle(wheelCenter, wheelR * 0.3, Paint()..color = const Color(0xFF08080A));
       for (final angle in [0.0, math.pi / 2, math.pi / 4, 3 * math.pi / 4]) {
         final dx = wheelR * math.cos(angle);
         final dy = wheelR * math.sin(angle);
-        canvas.drawLine(Offset(wheelCenter.dx - dx, wheelCenter.dy - dy), Offset(wheelCenter.dx + dx, wheelCenter.dy + dy), Paint()..color = const Color(0xFF08080A)..strokeWidth = 1.3);
+        canvas.drawLine(Offset(wheelCenter.dx - dx, wheelCenter.dy - dy), Offset(wheelCenter.dx + dx, wheelCenter.dy + dy), Paint()..color = const Color(0xFF08080A)..strokeWidth = 1.2);
       }
     }
 
