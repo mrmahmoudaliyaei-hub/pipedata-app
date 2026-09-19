@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 enum ComponentCategory {
   pipe,
   flange,
