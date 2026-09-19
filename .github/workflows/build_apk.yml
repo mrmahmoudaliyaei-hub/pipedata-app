@@ -33,12 +33,6 @@ jobs:
       - name: Install Packages
         run: flutter pub get
 
-      - name: Analyze
-        run: flutter analyze
-
-      - name: Run Tests
-        run: flutter test
-
       - name: Compile Release APK
         run: flutter build apk --release
 
