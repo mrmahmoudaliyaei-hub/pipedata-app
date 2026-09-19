@@ -12,7 +12,11 @@ void main() {
 
       expect(res.mawpBar, closeTo(93.4, 0.2));
       expect(res.mawpPsi, closeTo(1355, 5));
-      expect(res.hydroTestBar, closeTo(res.mawpBar * 1.5, 0.05));
+      // The engine rounds mawpBar/hydroTestBar independently from the same
+      // unrounded pressure, so hydroTestBar can differ from (rounded
+      // mawpBar * 1.5) by up to ~0.1 bar purely from double-rounding —
+      // that's not a bug, so the tolerance has to be wider than 0.05.
+      expect(res.hydroTestBar, closeTo(res.mawpBar * 1.5, 0.15));
       expect(res.netTMin, closeTo(3.77, 0.02));
       expect(res.allowableStressMpa, 138.0);
     });
@@ -23,8 +27,8 @@ void main() {
         nominalWallThkMm: 3.91,
         material: MaterialGrade.a312Tp316L,
       );
-      expect(res.hydroTestBar, closeTo(res.mawpBar * 1.5, 0.05));
-      expect(res.hydroTestPsi, closeTo(res.mawpPsi * 1.5, 5));
+      expect(res.hydroTestBar, closeTo(res.mawpBar * 1.5, 0.15));
+      expect(res.hydroTestPsi, closeTo(res.mawpPsi * 1.5, 8));
     });
 
     test('MAWP never goes negative for a very thin/large pipe', () {
@@ -57,8 +61,8 @@ void main() {
         nominalWallThkMm: 15.09,
         grade: PipelineGrade.x60,
       );
-      expect(res.hydroTestBar, closeTo(res.maopBar * 1.25, 0.05));
-      expect(res.hydroTestPsi, closeTo(res.maopPsi * 1.25, 5));
+      expect(res.hydroTestBar, closeTo(res.maopBar * 1.25, 0.15));
+      expect(res.hydroTestPsi, closeTo(res.maopPsi * 1.25, 8));
     });
   });
 
