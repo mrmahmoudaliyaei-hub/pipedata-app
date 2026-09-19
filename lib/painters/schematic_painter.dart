@@ -139,8 +139,8 @@ class VectorBlueprintPainter extends CustomPainter {
         const double profileTopY = 22.0;
         const double bossH = 9.0;
         const double bodyH = 24.0;
-        final double bodyTopY = profileTopY + bossH;
-        final double bodyBottomY = bodyTopY + bodyH;
+        const double bodyTopY = profileTopY + bossH;
+        const double bodyBottomY = bodyTopY + bodyH;
         final double bossW = odPx * 0.34;
 
         final bodyRect = Rect.fromLTRB(cx - odPx / 2, bodyTopY, cx + odPx / 2, bodyBottomY);
@@ -160,7 +160,7 @@ class VectorBlueprintPainter extends CustomPainter {
 
         // Thickness, as a vertical dimension beside the body.
         final double dimX = cx + odPx / 2 + 16;
-        _drawVerticalDimension(canvas, Offset(dimX, bodyTopY), Offset(dimX, bodyBottomY), '${fThk.toStringAsFixed(1)}', lineDim);
+        _drawVerticalDimension(canvas, Offset(dimX, bodyTopY), Offset(dimX, bodyBottomY), fThk.toStringAsFixed(1), lineDim);
 
         // Bolt-hole leader, from the boss edge.
         _drawLeader(
@@ -207,7 +207,7 @@ class VectorBlueprintPainter extends CustomPainter {
         // Equal tee: run and branch C-to-E are the same real value, so both
         // arms get a genuine dimension, not just the one on the right.
         _drawDimension(canvas, Offset(center.dx, center.dy), Offset(center.dx + 70, center.dy), '${cToE.toStringAsFixed(0)} mm', lineAccent);
-        _drawVerticalDimension(canvas, Offset(center.dx - 26, center.dy - 62), Offset(center.dx - 26, center.dy - 18), '${cToE.toStringAsFixed(0)}', lineAccent);
+        _drawVerticalDimension(canvas, Offset(center.dx - 26, center.dy - 62), Offset(center.dx - 26, center.dy - 18), cToE.toStringAsFixed(0), lineAccent);
         final teeOd = _matingPipeOd(data['dn']);
         if (teeOd != null) {
           _drawLeader(canvas, Offset(center.dx - 65, center.dy - 18), Offset(center.dx - 95, center.dy - 40), 'OD: ${teeOd.toStringAsFixed(1)} mm', lineWeld);
