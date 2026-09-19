@@ -5,6 +5,31 @@ All notable changes to Piping Data Pro are logged here. Dates are UTC.
 ## Unreleased
 
 ### Changed
+- **Schematics redesigned to read like real engineering drawings**, per a
+  reference (PIPEDATA) screenshot: proportional cross-sections with
+  telescoping dimension lines, instead of decorative shapes with a single
+  floating label.
+  - **Flanges**: full rewrite — a scaled cross-section profile (body + raised
+    face + through-bore) with three stacked, to-scale dimension lines (bore /
+    PCD / OD) plus a thickness dimension and a bolt-hole leader, closely
+    following the reference's layout.
+  - **Pipes, Tees, Elbows, Caps, Socket-Welds, Threaded, Reducers,
+    Weldolets/Sockolets/Threadolets**: each now labels at least one
+    additional real dimension it didn't before (mating-pipe OD/ID looked up
+    from the pipes dataset by DN, gasket/socket-weld thickness, both tee
+    arms, both reducer ends, etc.) instead of an unlabeled or purely
+    decorative body.
+  - **Valves**: bonnet block + a proper 4-spoke handwheel (rim, hub, spokes)
+    replacing the single crossbar-and-dot stem, for a more literal elevation
+    silhouette. Deliberately did **not** add overall-height or handwheel-
+    diameter dimensions like the reference shows — this app's valve dataset
+    only has face-to-face length, and inventing numbers for dimensions we
+    don't have data for would be a fabricated figure presented as real.
+  - New shared helper `_matingPipeOd()` looks up a fitting's real mating-pipe
+    OD from `PipingMasterCatalog.pipes` by DN; used across most of the
+    categories above instead of leaving those bodies dimensionless.
+
+### Changed
 - **Data moved out of Dart source and into JSON assets.** All 13 component
   datasets (pipes, flanges, gaskets, valves, tees, elbows, caps, reducers,
   socket-welds, threaded, weldolets, sockolets, threadolets) now live in

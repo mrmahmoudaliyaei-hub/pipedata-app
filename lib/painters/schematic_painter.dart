@@ -102,36 +102,85 @@ class VectorBlueprintPainter extends CustomPainter {
         _drawDimension(canvas, Offset(center.dx - rOut, center.dy), Offset(center.dx + rOut, center.dy), 'OD: ${od.toStringAsFixed(1)} mm', lineDim);
         final label = category == ComponentCategory.pipelineTransport ? 't: $thk mm (Transport Line)' : 't: $thk mm (Bevel 37.5°)';
         _drawLeader(canvas, Offset(center.dx + (rOut + rIn) / 2, center.dy - 8), Offset(center.dx + rOut + 25, center.dy - 35), label, accent);
+        final double idMm = (currentSch['id'] as num).toDouble();
+        _drawLeader(canvas, Offset(center.dx - rIn * 0.7, center.dy + rIn * 0.7), Offset(center.dx - rOut - 25, center.dy + rOut * 0.6), 'ID: ${idMm.toStringAsFixed(1)} mm', lineWeld);
         break;
 
       case ComponentCategory.flange:
         final classes = data['classes'] as Map<String, dynamic>;
         final flg = classes[subType] ?? classes.values.first;
-        final double rFlange = size.height * 0.44;
-        final double rPcd = rFlange * 0.72;
-        final double rBore = rFlange * 0.38;
-
-        final ring = Path()
-          ..addOval(Rect.fromCircle(center: center, radius: rFlange))
-          ..addOval(Rect.fromCircle(center: center, radius: rBore))
-          ..fillType = PathFillType.evenOdd;
-        canvas.drawPath(ring, bodyFill(Rect.fromCircle(center: center, radius: rFlange)));
-        canvas.drawCircle(center, rFlange, lineOutline);
-        canvas.drawCircle(center, rBore, lineOutline);
-        canvas.drawCircle(center, rBore, Paint()..color = const Color(0xFF08080A));
-        canvas.drawCircle(center, rPcd, Paint()..color = accentColor.withOpacity(0.55)..strokeWidth = 1.0..style = PaintingStyle.stroke);
-
+        final double fOd = (flg['od'] as num).toDouble();
+        final double fPcd = (flg['pcd'] as num).toDouble();
+        final double fThk = (flg['thk'] as num).toDouble();
         final int boltCount = flg['bolts'] as int;
-        for (int i = 0; i < boltCount; i++) {
-          final double angle = (i * 2 * math.pi) / boltCount;
-          final boltPos = Offset(center.dx + rPcd * math.cos(angle), center.dy + rPcd * math.sin(angle));
-          canvas.drawCircle(boltPos, 5.2, Paint()..color = const Color(0xFF0B0B0D));
-          canvas.drawCircle(boltPos, 5.2, lineOutline..strokeWidth = 1.6);
-          canvas.drawLine(Offset(boltPos.dx - 7, boltPos.dy), Offset(boltPos.dx + 7, boltPos.dy), lineCenter);
-          canvas.drawLine(Offset(boltPos.dx, boltPos.dy - 7), Offset(boltPos.dx, boltPos.dy + 7), lineCenter);
+        final String boltSize = (flg['boltSize'] as String?) ?? '';
+
+        // Real mating-pipe bore for this flange's DN, at Sch 40 (STD) if
+        // available — this is an actual dataset value (not invented), used
+        // as the flange's through-bore in the cross-section below.
+        double? boreMm;
+        final matches = PipingMasterCatalog.pipes.where((p) => p['dn'] == data['dn']);
+        if (matches.isNotEmpty) {
+          final schedules = matches.first['schedules'] as Map<String, dynamic>;
+          final sch = schedules['Sch 40 (STD)'] ?? schedules.values.first;
+          boreMm = (sch['id'] as num).toDouble();
         }
-        _drawDimension(canvas, Offset(center.dx - rPcd, center.dy), Offset(center.dx + rPcd, center.dy), 'PCD: ${flg['pcd']} mm', lineAccent);
-        _drawLeader(canvas, Offset(center.dx + rFlange * 0.8, center.dy - rFlange * 0.5), Offset(center.dx + rFlange + 15, center.dy - rFlange * 0.6), '${boltCount}x Holes (${flg['boltSize']})', lineDim);
+
+        // Cross-section profile, drawn to scale: every horizontal width
+        // below is proportional to its real mm value against fOd, so the
+        // telescoping dimension lines are actually to-scale, not decorative.
+        final double cx = size.width / 2;
+        final double maxSpanPx = size.width - 84; // leaves room for the thickness dimension on the right
+        double pxFor(double mm) => maxSpanPx * (mm / fOd);
+        final double odPx = maxSpanPx;
+        final double pcdPx = pxFor(fPcd);
+        final double borePx = boreMm != null ? pxFor(boreMm) : 0;
+
+        const double profileTopY = 22.0;
+        const double bossH = 9.0;
+        const double bodyH = 24.0;
+        final double bodyTopY = profileTopY + bossH;
+        final double bodyBottomY = bodyTopY + bodyH;
+        final double bossW = odPx * 0.34;
+
+        final bodyRect = Rect.fromLTRB(cx - odPx / 2, bodyTopY, cx + odPx / 2, bodyBottomY);
+        canvas.drawRect(bodyRect, bodyFill(bodyRect));
+        canvas.drawRect(bodyRect, lineOutline);
+        final bossRect = Rect.fromLTRB(cx - bossW / 2, profileTopY, cx + bossW / 2, bodyTopY + 2);
+        canvas.drawRect(bossRect, bodyFill(bossRect, lightness: 0.42));
+        canvas.drawRect(bossRect, lineOutline);
+
+        if (boreMm != null) {
+          final boreRect = Rect.fromLTRB(cx - borePx / 2, profileTopY - 5, cx + borePx / 2, bodyBottomY);
+          canvas.drawRect(boreRect, Paint()..color = const Color(0xFF08080A));
+          canvas.drawLine(Offset(cx - borePx / 2, profileTopY - 5), Offset(cx - borePx / 2, bodyBottomY), lineOutline..strokeWidth = 1.6);
+          canvas.drawLine(Offset(cx + borePx / 2, profileTopY - 5), Offset(cx + borePx / 2, bodyBottomY), lineOutline..strokeWidth = 1.6);
+        }
+        canvas.drawLine(Offset(cx, profileTopY - 9), Offset(cx, bodyBottomY + 9), lineCenter);
+
+        // Thickness, as a vertical dimension beside the body.
+        final double dimX = cx + odPx / 2 + 16;
+        _drawVerticalDimension(canvas, Offset(dimX, bodyTopY), Offset(dimX, bodyBottomY), '${fThk.toStringAsFixed(1)}', lineDim);
+
+        // Bolt-hole leader, from the boss edge.
+        _drawLeader(
+          canvas,
+          Offset(cx + bossW / 2 - 3, profileTopY + 2),
+          Offset(cx + bossW / 2 + 22, profileTopY - 20),
+          '${boltCount}x $boltSize',
+          lineAccent,
+        );
+
+        // Telescoping dimension lines: bore (if known), PCD, OD — stacked,
+        // each to the width it's actually proportional to.
+        double dimY = bodyBottomY + 16;
+        if (boreMm != null) {
+          _drawDimension(canvas, Offset(cx - borePx / 2, dimY), Offset(cx + borePx / 2, dimY), boreMm.toStringAsFixed(0), lineWeld);
+          dimY += 15;
+        }
+        _drawDimension(canvas, Offset(cx - pcdPx / 2, dimY), Offset(cx + pcdPx / 2, dimY), fPcd.toStringAsFixed(0), lineAccent);
+        dimY += 15;
+        _drawDimension(canvas, Offset(cx - odPx / 2, dimY), Offset(cx + odPx / 2, dimY), fOd.toStringAsFixed(0), lineDim);
         break;
 
       case ComponentCategory.tee:
@@ -155,8 +204,14 @@ class VectorBlueprintPainter extends CustomPainter {
         canvas.drawLine(Offset(center.dx - 70, center.dy), Offset(center.dx + 70, center.dy), lineCenter);
         canvas.drawLine(Offset(center.dx, center.dy - 62), Offset(center.dx, center.dy + 18), lineCenter);
 
-        _drawDimension(canvas, Offset(center.dx, center.dy), Offset(center.dx + 70, center.dy), 'C-to-E: ${cToE.toStringAsFixed(0)} mm', lineAccent);
-        _drawLeader(canvas, Offset(center.dx, center.dy - 62), Offset(center.dx - 30, center.dy - 85), 'ASME B16.9 Equal Tee', lineWeld);
+        // Equal tee: run and branch C-to-E are the same real value, so both
+        // arms get a genuine dimension, not just the one on the right.
+        _drawDimension(canvas, Offset(center.dx, center.dy), Offset(center.dx + 70, center.dy), '${cToE.toStringAsFixed(0)} mm', lineAccent);
+        _drawVerticalDimension(canvas, Offset(center.dx - 26, center.dy - 62), Offset(center.dx - 26, center.dy - 18), '${cToE.toStringAsFixed(0)}', lineAccent);
+        final teeOd = _matingPipeOd(data['dn']);
+        if (teeOd != null) {
+          _drawLeader(canvas, Offset(center.dx - 65, center.dy - 18), Offset(center.dx - 95, center.dy - 40), 'OD: ${teeOd.toStringAsFixed(1)} mm', lineWeld);
+        }
         break;
 
       case ComponentCategory.elbow:
@@ -203,6 +258,10 @@ class VectorBlueprintPainter extends CustomPainter {
 
         _drawDimension(canvas, Offset(center.dx - 45, center.dy + 65), Offset(center.dx - 45, center.dy - 45), 'C-to-E: ${cToE.toStringAsFixed(1)} mm', lineAccent);
         _drawLeader(canvas, Offset(center.dx + 65, center.dy - 65), Offset(center.dx + 75, center.dy - 85), 'ASME B16.9 Bevel (Root 1.6mm)', lineWeld);
+        final elbowOd = _matingPipeOd(data['dn']);
+        if (elbowOd != null) {
+          _drawLeader(canvas, Offset(outerStart.dx + 8, outerStart.dy - 4), Offset(outerStart.dx - 20, outerStart.dy + 22), 'OD: ${elbowOd.toStringAsFixed(1)} mm', lineDim);
+        }
         break;
 
       case ComponentCategory.cap:
@@ -221,10 +280,15 @@ class VectorBlueprintPainter extends CustomPainter {
 
         _drawDimension(canvas, Offset(center.dx - 20, center.dy + 70), Offset(center.dx + 50, center.dy + 70), 'Length: ${capLen.toStringAsFixed(0)} mm', lineDim);
         _drawLeader(canvas, Offset(center.dx + 15, center.dy - 55), Offset(center.dx + 45, center.dy - 78), 'Domed Closure (B16.9)', lineWeld);
+        final capOd = _matingPipeOd(data['dn']);
+        if (capOd != null) {
+          _drawLeader(canvas, Offset(center.dx - 20, center.dy - 5), Offset(center.dx - 55, center.dy - 25), 'OD: ${capOd.toStringAsFixed(1)} mm', lineAccent);
+        }
         break;
 
       case ComponentCategory.socketWeld:
         final double depth = ((data['depth'] ?? 9.5) as num).toDouble();
+        final double boreDia = ((data['boreDia'] ?? 0.0) as num).toDouble();
         final outerRect = Rect.fromCenter(center: center, width: 140, height: 80);
         canvas.drawRect(outerRect, bodyFill(outerRect));
         canvas.drawRect(outerRect, lineOutline);
@@ -234,6 +298,7 @@ class VectorBlueprintPainter extends CustomPainter {
 
         _drawLeader(canvas, Offset(center.dx + 32, center.dy), Offset(center.dx + 45, center.dy + 45), 'Mandatory Gap: 1.6 mm', lineWeld);
         _drawDimension(canvas, Offset(center.dx - 60, center.dy + 25), Offset(center.dx + 30, center.dy + 25), 'Bore Depth: $depth mm', lineDim);
+        _drawVerticalDimension(canvas, Offset(center.dx - 60, center.dy - 25), Offset(center.dx - 60, center.dy + 25), 'Bore ⌀${boreDia.toStringAsFixed(1)}', lineAccent);
         break;
 
       case ComponentCategory.threaded:
@@ -249,6 +314,10 @@ class VectorBlueprintPainter extends CustomPainter {
         canvas.drawPath(path, lineAccent);
         _drawDimension(canvas, Offset(center.dx - 65, center.dy + 25), Offset(center.dx + 65, center.dy + 25), 'Effective Thread L2: ${data['minThreadL2']} mm', lineDim);
         _drawLeader(canvas, Offset(center.dx, center.dy - 15), Offset(center.dx, center.dy - 45), 'NPT 1:16 Taper ($tpi TPI)', lineAccent);
+        final threadedOd = _matingPipeOd(data['dn']);
+        if (threadedOd != null) {
+          _drawLeader(canvas, Offset(center.dx - 65, center.dy - 14), Offset(center.dx - 95, center.dy - 34), 'OD: ${threadedOd.toStringAsFixed(1)} mm', lineWeld);
+        }
         break;
 
       case ComponentCategory.reducer:
@@ -275,8 +344,12 @@ class VectorBlueprintPainter extends CustomPainter {
         canvas.drawLine(Offset(center.dx + halfLen, center.dy - rSmall), Offset(center.dx + halfLen, center.dy + rSmall), lineOutline);
 
         _drawDimension(canvas, Offset(center.dx - halfLen, center.dy - rLarge - 16), Offset(center.dx + halfLen, center.dy - rLarge - 16), 'H: ${lenMm.toStringAsFixed(0)} mm', lineDim);
-        _drawLeader(canvas, Offset(center.dx - halfLen, center.dy - rLarge * 0.4), Offset(center.dx - halfLen - 30, center.dy - rLarge - 10), 'Large End', lineAccent);
-        _drawLeader(canvas, Offset(center.dx + halfLen, center.dy - rSmall * 0.4), Offset(center.dx + halfLen + 20, center.dy - rSmall - 24), 'Small End', lineWeld);
+        final largeOd = _matingPipeOd(data['largeDn']);
+        final smallOd = _matingPipeOd(data['smallDn']);
+        _drawLeader(canvas, Offset(center.dx - halfLen, center.dy - rLarge * 0.4), Offset(center.dx - halfLen - 30, center.dy - rLarge - 10),
+            largeOd != null ? 'Large End OD: ${largeOd.toStringAsFixed(1)} mm' : 'Large End', lineAccent);
+        _drawLeader(canvas, Offset(center.dx + halfLen, center.dy - rSmall * 0.4), Offset(center.dx + halfLen + 20, center.dy - rSmall - 24),
+            smallOd != null ? 'Small End OD: ${smallOd.toStringAsFixed(1)} mm' : 'Small End', lineWeld);
         break;
 
       case ComponentCategory.gasket:
@@ -305,7 +378,8 @@ class VectorBlueprintPainter extends CustomPainter {
         _drawCrosshairs(canvas, center, rIn * 0.6, lineCenter);
         _drawDimension(canvas, Offset(center.dx - rOut, center.dy), Offset(center.dx + rOut, center.dy), 'OD: ${gOd.toStringAsFixed(1)} mm', lineDim);
         _drawLeader(canvas, Offset(center.dx, center.dy - rIn), Offset(center.dx - 45, center.dy - rIn - 24), 'ID: ${gId.toStringAsFixed(1)} mm', lineAccent);
-        _drawLeader(canvas, Offset(center.dx + rIn * 0.7, center.dy + rIn * 0.7), Offset(center.dx + rOut + 15, center.dy + rOut * 0.5), 'Spiral-Wound (316L/Graphite)', lineWeld);
+        final double gThk = (gk['thk'] as num).toDouble();
+        _drawLeader(canvas, Offset(center.dx + rIn * 0.7, center.dy + rIn * 0.7), Offset(center.dx + rOut + 15, center.dy + rOut * 0.5), 'Spiral-Wound, ${gThk.toStringAsFixed(1)}mm (316L/Graphite)', lineWeld);
         break;
 
       case ComponentCategory.valve:
@@ -351,8 +425,15 @@ class VectorBlueprintPainter extends CustomPainter {
         }
 
         _drawDimension(canvas, Offset(center.dx + stubW / 2 + 20, stubTopY), Offset(center.dx + stubW / 2 + 20, center.dy + 30 - runH / 2), 'H: ${height.toStringAsFixed(1)} mm', lineDim);
-        _drawLeader(canvas, Offset(center.dx - runHalfW * 0.6, center.dy + 30), Offset(center.dx - runHalfW - 15, center.dy + 60), 'Run Pipe', lineAccent);
-        _drawLeader(canvas, Offset(center.dx, stubTopY), Offset(center.dx + 40, stubTopY - 20), 'MSS SP-97', lineWeld);
+        final runOd = _matingPipeOd(data['dn']);
+        _drawLeader(canvas, Offset(center.dx - runHalfW * 0.6, center.dy + 30), Offset(center.dx - runHalfW - 15, center.dy + 60),
+            runOd != null ? 'Run OD: ${runOd.toStringAsFixed(1)} mm' : 'Run Pipe', lineAccent);
+        if (category == ComponentCategory.sockolet && data.containsKey('socketDepth')) {
+          final socketDepth = (data['socketDepth'] as num).toDouble();
+          _drawLeader(canvas, Offset(center.dx, stubTopY), Offset(center.dx + 40, stubTopY - 20), 'MSS SP-97, Socket ${socketDepth.toStringAsFixed(1)}mm', lineWeld);
+        } else {
+          _drawLeader(canvas, Offset(center.dx, stubTopY), Offset(center.dx + 40, stubTopY - 20), 'MSS SP-97', lineWeld);
+        }
         break;
     }
   }
@@ -392,11 +473,26 @@ class VectorBlueprintPainter extends CustomPainter {
     }
 
     void drawHandwheelStem(double topY) {
-      canvas.drawLine(Offset(center.dx, topY), Offset(center.dx, topY - 26), Paint()..color = const Color(0xFF30D158)..strokeWidth = 3.0);
-      canvas.drawCircle(Offset(center.dx, topY - 34), 9.5, metal);
-      canvas.drawCircle(Offset(center.dx, topY - 34), 9.5, flangeOutline..strokeWidth = 2.0);
-      canvas.drawLine(Offset(center.dx - 9.5, topY - 34), Offset(center.dx + 9.5, topY - 34), Paint()..color = const Color(0xFF08080A)..strokeWidth = 1.4);
-      canvas.drawLine(Offset(center.dx, topY - 43.5), Offset(center.dx, topY - 24.5), Paint()..color = const Color(0xFF08080A)..strokeWidth = 1.4);
+      // Bonnet block between the body and the stem — the reference elevation
+      // drawings always show this as a distinct step, not a bare rod.
+      final bonnetRect = Rect.fromLTRB(center.dx - 9, topY - 9, center.dx + 9, topY);
+      canvas.drawRect(bonnetRect, bodyFill(bonnetRect, lightness: 0.32));
+      canvas.drawRect(bonnetRect, flangeOutline..strokeWidth = 2.0);
+
+      final double stemTopY = topY - 9 - 14;
+      canvas.drawLine(Offset(center.dx, topY - 9), Offset(center.dx, stemTopY), Paint()..color = const Color(0xFF30D158)..strokeWidth = 2.4);
+
+      // Handwheel: rim + hub + 4 spokes, instead of a single crossbar.
+      final wheelCenter = Offset(center.dx, stemTopY - 7);
+      const double wheelR = 8.5;
+      canvas.drawCircle(wheelCenter, wheelR, metal);
+      canvas.drawCircle(wheelCenter, wheelR, flangeOutline..strokeWidth = 1.8);
+      canvas.drawCircle(wheelCenter, wheelR * 0.3, Paint()..color = const Color(0xFF08080A));
+      for (final angle in [0.0, math.pi / 2, math.pi / 4, 3 * math.pi / 4]) {
+        final dx = wheelR * math.cos(angle);
+        final dy = wheelR * math.sin(angle);
+        canvas.drawLine(Offset(wheelCenter.dx - dx, wheelCenter.dy - dy), Offset(wheelCenter.dx + dx, wheelCenter.dy + dy), Paint()..color = const Color(0xFF08080A)..strokeWidth = 1.3);
+      }
     }
 
     switch (type) {
@@ -484,6 +580,16 @@ class VectorBlueprintPainter extends CustomPainter {
     }
   }
 
+  /// Looks up the real B36.10M pipe OD for a given DN (used to label
+  /// fitting cross-sections with the actual mating-pipe size instead of
+  /// leaving the body dimensionless). Returns null if no match is found.
+  double? _matingPipeOd(dynamic dn) {
+    if (dn == null) return null;
+    final matches = PipingMasterCatalog.pipes.where((p) => p['dn'] == dn);
+    if (matches.isEmpty) return null;
+    return (matches.first['od'] as num).toDouble();
+  }
+
   void _drawRadialHatch(Canvas canvas, Offset center, double rIn, double rOut, Color color) {
     final paint = Paint()..color = color..strokeWidth = 1.0;
     for (int i = 0; i < 24; i++) {
@@ -507,6 +613,17 @@ class VectorBlueprintPainter extends CustomPainter {
     _renderText(canvas, text, Offset(mid.dx, mid.dy - 14), paint.color);
   }
 
+  /// Same idea as [_drawDimension] but for a vertical span (e.g. a
+  /// thickness), with the label to the right of the line instead of
+  /// centered above it.
+  void _drawVerticalDimension(Canvas canvas, Offset start, Offset end, String text, Paint paint) {
+    canvas.drawLine(start, end, paint);
+    canvas.drawLine(Offset(start.dx - 4, start.dy), Offset(start.dx + 4, start.dy), paint);
+    canvas.drawLine(Offset(end.dx - 4, end.dy), Offset(end.dx + 4, end.dy), paint);
+    final mid = Offset((start.dx + end.dx) / 2, (start.dy + end.dy) / 2);
+    _renderTextLeftAligned(canvas, text, Offset(mid.dx + 6, mid.dy - 5), paint.color);
+  }
+
   void _drawLeader(Canvas canvas, Offset start, Offset end, String text, Paint paint) {
     canvas.drawLine(start, end, paint);
     canvas.drawCircle(start, 2.5, paint);
@@ -519,6 +636,14 @@ class VectorBlueprintPainter extends CustomPainter {
       textDirection: TextDirection.ltr,
     )..layout();
     tp.paint(canvas, Offset(pos.dx - (tp.width / 2), pos.dy));
+  }
+
+  void _renderTextLeftAligned(Canvas canvas, String text, Offset pos, Color color) {
+    final tp = TextPainter(
+      text: TextSpan(text: text, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: -0.2)),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    tp.paint(canvas, pos);
   }
 
   @override
