@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import '../core/category_meta.dart';
 import '../core/dimension_builder.dart';
 import '../core/models.dart';
+import '../core/pdf_export.dart';
 import '../core/units.dart';
 import '../painters/schematic_painter.dart';
 import 'compare_screen.dart';
@@ -93,6 +94,8 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              _buildShareButton(item),
+              const SizedBox(width: 8),
               _buildCompareButton(),
               const SizedBox(width: 8),
               _buildUnitToggle(),
@@ -119,6 +122,33 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildShareButton(Map<String, dynamic> item) {
+    return GestureDetector(
+      onTap: () {
+        final rows = buildDimensionRows(
+          category: _meta.category,
+          item: item,
+          subSelection: _subSelection,
+          valveType: _valveType,
+        );
+        shareDataSheet(
+          title: '${item['nps']} ${_meta.label}',
+          standard: _meta.standard,
+          rows: rows,
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1C1C1E),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFF2C2C2E)),
+        ),
+        child: Icon(CupertinoIcons.share, size: 16, color: _meta.color),
       ),
     );
   }
