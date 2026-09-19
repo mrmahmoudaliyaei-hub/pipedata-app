@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import '../core/models.dart';
 import '../core/units.dart';
 import '../painters/schematic_painter.dart';
+import 'schematic_fullscreen_screen.dart';
 
 /// ASME B31.4 liquid transport pipeline MAOP calculator. Reuses the same
 /// B36.10M pipe OD/schedule dataset as the Pipes category, but computes
@@ -240,32 +241,49 @@ class _PipelineScreenState extends State<PipelineScreen> {
   }
 
   Widget _buildSchematicCard(Map<String, dynamic> item) {
-    return Container(
-      height: 210,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFF161618),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2C2C2E)),
-      ),
-      child: Column(
-        children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('CROSS-SECTION ENGINEERING BLUEPRINT', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF8E8E93), letterSpacing: 0.6)),
-              Text('CAD VECTOR', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFFF9F0A))),
-            ],
-          ),
-          Expanded(
-            child: Center(
-              child: CustomPaint(
-                size: const Size(260, 150),
-                painter: VectorBlueprintPainter(category: ComponentCategory.pipelineTransport, data: item, subType: _schedule, accentColor: const Color(0xFFFF453A)),
+    return GestureDetector(
+      onTap: () => Navigator.of(context).push(CupertinoPageRoute(
+        builder: (_) => SchematicFullscreenScreen(
+          category: ComponentCategory.pipelineTransport,
+          data: item,
+          subType: _schedule,
+          accentColor: const Color(0xFFFF453A),
+          title: 'Pipeline (Transport)',
+        ),
+      )),
+      child: Container(
+        height: 210,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFF161618),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFF2C2C2E)),
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('CROSS-SECTION ENGINEERING BLUEPRINT', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF8E8E93), letterSpacing: 0.6)),
+                const Row(
+                  children: [
+                    Icon(CupertinoIcons.zoom_in, size: 13, color: Color(0xFFFF9F0A)),
+                    SizedBox(width: 4),
+                    Text('CAD VECTOR', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFFF9F0A))),
+                  ],
+                ),
+              ],
+            ),
+            Expanded(
+              child: Center(
+                child: CustomPaint(
+                  size: const Size(260, 150),
+                  painter: VectorBlueprintPainter(category: ComponentCategory.pipelineTransport, data: item, subType: _schedule, accentColor: const Color(0xFFFF453A)),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

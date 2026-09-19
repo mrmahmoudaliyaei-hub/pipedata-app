@@ -7,6 +7,7 @@ import '../core/pdf_export.dart';
 import '../core/units.dart';
 import '../painters/schematic_painter.dart';
 import 'compare_screen.dart';
+import 'schematic_fullscreen_screen.dart';
 
 class CategoryDetailScreen extends StatefulWidget {
   final ComponentCategory category;
@@ -403,36 +404,54 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
 
   Widget _buildSchematicCard(Map<String, dynamic> item) {
     final Color c = _meta.color;
-    return Container(
-      height: 210,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [const Color(0xFF17171A), Color.lerp(const Color(0xFF161618), c, 0.04)!],
+    return GestureDetector(
+      onTap: () => Navigator.of(context).push(CupertinoPageRoute(
+        builder: (_) => SchematicFullscreenScreen(
+          category: _meta.category,
+          data: item,
+          subType: _subSelection,
+          accentColor: c,
+          valveType: _valveType,
+          title: _meta.label,
         ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: c.withOpacity(0.18)),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('CROSS-SECTION ENGINEERING BLUEPRINT', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF8E8E93), letterSpacing: 0.6)),
-              Text('CAD VECTOR', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: c)),
-            ],
+      )),
+      child: Container(
+        height: 210,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [const Color(0xFF17171A), Color.lerp(const Color(0xFF161618), c, 0.04)!],
           ),
-          Expanded(
-            child: Center(
-              child: CustomPaint(
-                size: const Size(260, 150),
-                painter: VectorBlueprintPainter(category: _meta.category, data: item, subType: _subSelection, accentColor: c, valveType: _valveType),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: c.withOpacity(0.18)),
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('CROSS-SECTION ENGINEERING BLUEPRINT', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF8E8E93), letterSpacing: 0.6)),
+                Row(
+                  children: [
+                    Icon(CupertinoIcons.zoom_in, size: 13, color: c),
+                    const SizedBox(width: 4),
+                    Text('CAD VECTOR', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: c)),
+                  ],
+                ),
+              ],
+            ),
+            Expanded(
+              child: Center(
+                child: CustomPaint(
+                  size: const Size(260, 150),
+                  painter: VectorBlueprintPainter(category: _meta.category, data: item, subType: _subSelection, accentColor: c, valveType: _valveType),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

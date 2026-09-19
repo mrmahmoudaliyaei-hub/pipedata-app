@@ -24,8 +24,27 @@ class VectorBlueprintPainter extends CustomPainter {
     this.valveType = 'Gate Valve',
   });
 
+  /// Every shape below is hand-tuned against this exact canvas size. Rather
+  /// than re-deriving all of that math to be resolution-independent, [paint]
+  /// draws it once at this fixed size and uniformly scales the whole canvas
+  /// up (or down) to fit whatever size it's actually asked to fill — this is
+  /// what lets the same painter serve both the small inline card and the
+  /// full-screen zoomed view without maintaining two coordinate systems.
+  static const Size _designSize = Size(260, 150);
+
   @override
   void paint(Canvas canvas, Size size) {
+    final double scale = math.min(size.width / _designSize.width, size.height / _designSize.height);
+    final double dx = (size.width - _designSize.width * scale) / 2;
+    final double dy = (size.height - _designSize.height * scale) / 2;
+    canvas.save();
+    canvas.translate(dx, dy);
+    canvas.scale(scale);
+    _paintContent(canvas, _designSize);
+    canvas.restore();
+  }
+
+  void _paintContent(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
 
     final lineOutline = Paint()
