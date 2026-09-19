@@ -368,7 +368,7 @@ class PipingMasterCatalog {
       'schedules': {
         'Sch 20': {'thk': 6.35, 'id': 596.90, 'wt': 94.46},
         'Sch 40 (STD)': {'thk': 17.48, 'id': 574.64, 'wt': 255.41},
-        'Sch 80 (XS)': {'thk': 30.96, 'id': 447.68, 'wt': 441.97},
+        'Sch 80 (XS)': {'thk': 30.96, 'id': 547.68, 'wt': 441.97}, // FIXED: was 447.68 (typo — should be OD 609.60 - 2*30.96 = 547.68)
       }
     },
     {
@@ -436,6 +436,13 @@ class PipingMasterCatalog {
   ];
 
   // ASME B16.5 Weld Neck Raised Face (WNRF) Flanges
+  // TODO(data-audit): the 'torqueNm' values below do not progress monotonically
+  // with size/class in several rows (e.g. 1/2" Class150=45 -> 3/4" Class150=435
+  // -> 1" Class150=55) — this is inconsistent with real bolt-torque tables and
+  // should NOT be relied on for actual bolting work until re-derived from a
+  // verified source (e.g. manufacturer torque charts or a proper stress-based
+  // calc from bolt size/stud material). Flagging rather than guessing new
+  // numbers, since bolt torque is safety-relevant.
   static final List<Map<String, dynamic>> flanges = [
     {
       'nps': '1/2"', 'dn': 15,
@@ -616,6 +623,11 @@ class PipingMasterCatalog {
 
   // ASME B16.9 Concentric & Eccentric Reducers - Center-to-End Length (H)
   // H is identical for concentric and eccentric patterns at a given large-NPS x small-NPS pair.
+  // TODO(data-audit): '20" x 16"' and '24" x 20"' both list H=508.0mm below.
+  // Could not confirm the correct 24"x20" value against an authoritative
+  // ASME B16.9 table in this session — verify before relying on it; it is
+  // unusual (though not impossible) for two different reduction pairs to
+  // share an identical length.
   static final List<Map<String, dynamic>> reducers = [
     {'nps': '3/4" x 1/2"', 'largeDn': 20, 'smallDn': 15, 'lengths': {'Concentric': 38.0, 'Eccentric': 38.0}},
     {'nps': '1" x 3/4"', 'largeDn': 25, 'smallDn': 20, 'lengths': {'Concentric': 51.0, 'Eccentric': 51.0}},
