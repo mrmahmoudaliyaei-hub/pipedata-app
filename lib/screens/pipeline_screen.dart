@@ -261,11 +261,11 @@ class _PipelineScreenState extends State<PipelineScreen> {
         ),
         child: Column(
           children: [
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('CROSS-SECTION ENGINEERING BLUEPRINT', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF8E8E93), letterSpacing: 0.6)),
-                const Row(
+                Text('CROSS-SECTION ENGINEERING BLUEPRINT', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF8E8E93), letterSpacing: 0.6)),
+                Row(
                   children: [
                     Icon(CupertinoIcons.zoom_in, size: 13, color: Color(0xFFFF9F0A)),
                     SizedBox(width: 4),
