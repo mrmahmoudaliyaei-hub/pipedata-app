@@ -1,12 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import '../core/category_meta.dart';
+import '../core/component_icons.dart';
 import '../core/dimension_builder.dart';
 import '../core/favorites.dart';
 import '../core/models.dart';
 import '../core/pdf_export.dart';
 import '../core/units.dart';
-import '../core/valve_icons.dart';
-import '../painters/schematic_painter.dart';
 import 'compare_screen.dart';
 import 'schematic_fullscreen_screen.dart';
 
@@ -433,27 +432,22 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  _meta.category == ComponentCategory.valve ? 'PRODUCT REFERENCE PHOTO' : 'CROSS-SECTION ENGINEERING BLUEPRINT',
-                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF8E8E93), letterSpacing: 0.6),
+                const Text(
+                  'PRODUCT REFERENCE PHOTO',
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF8E8E93), letterSpacing: 0.6),
                 ),
                 Row(
                   children: [
                     Icon(CupertinoIcons.zoom_in, size: 13, color: c),
                     const SizedBox(width: 4),
-                    Text(_meta.category == ComponentCategory.valve ? 'PHOTO' : 'CAD VECTOR', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: c)),
+                    Text('PHOTO', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: c)),
                   ],
                 ),
               ],
             ),
             Expanded(
               child: Center(
-                child: _meta.category == ComponentCategory.valve
-                    ? Image.asset(valveIconAssets[_valveType]!, fit: BoxFit.contain)
-                    : CustomPaint(
-                        size: const Size(260, 150),
-                        painter: VectorBlueprintPainter(category: _meta.category, data: item, subType: _subSelection, accentColor: c, valveType: _valveType),
-                      ),
+                child: Image.asset(resolveIconAsset(_meta.category, valveType: _valveType), fit: BoxFit.contain),
               ),
             ),
           ],

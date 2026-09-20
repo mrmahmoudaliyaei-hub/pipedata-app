@@ -5,6 +5,36 @@ All notable changes to Piping Data Pro are logged here. Dates are UTC.
 ## Unreleased
 
 ### Changed
+- **Every category's schematic replaced with a real reference photo** —
+  extending the valve-only change below to all 13 remaining categories
+  (pipes, flanges, gaskets, reducers, tees, elbows, caps, socket-weld,
+  threaded, weldolets, sockolets, threadolets). Same approach as valves:
+  AI-generated photos, background removed, any size/class-specific
+  markings (stamped numbers, engraved text) blurred or cropped out, since
+  one photo represents every size+class combination of that category.
+  - `lib/core/component_icons.dart` replaces `valve_icons.dart`: one
+    category → asset map for everything except valves (which still need
+    a second key, the selected valve type), plus a single
+    `resolveIconAsset()` every screen calls instead of branching on
+    category type itself.
+  - `lib/painters/` (the whole CustomPainter-based schematic renderer,
+    `VectorBlueprintPainter` and everything in it) is now fully unused
+    and has been deleted rather than left as dead code — nothing in the
+    app references it anymore.
+  - `category_detail_screen.dart`, `schematic_fullscreen_screen.dart`,
+    `pipeline_screen.dart`: all three schematic-rendering call sites
+    (inline card, full-screen zoom, and the separate Pipeline calculator's
+    own card) now just call `Image.asset(resolveIconAsset(...))` — no
+    per-category branching left in any of them.
+  - `pipe` and `pipelineTransport` intentionally share one photo (same
+    physical product, different governing standard); `socketWeld`/
+    `threaded` reuse the `sockolet`/`threadolet` photos (visually the
+    same kind of part, smooth vs. threaded bore, no distinct clean
+    reference photo existed for the plain-fitting version).
+  - `test/component_icons_test.dart` replaces `valve_icons_test.dart`:
+    checks every `ComponentCategory` (and every valve type) resolves to
+    a real asset entry, not just valves.
+
 - **Valve schematics replaced with real reference photos.** After several
   rounds of trying to improve the procedurally-drawn valve body (bowtie
   shapes → faceted casting silhouette → real-yoke elevation), the app owner

@@ -1,7 +1,7 @@
 name: pipedata_pro
 description: "ASME Industrial Piping Engineering Workstation & Stress Calculator"
 publish_to: "none"
-version: 3.6.0+9
+version: 3.7.0+10
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -26,6 +26,7 @@ flutter:
     - assets/icon/
     - assets/data/
     - assets/images/valves/
+    - assets/images/parts/
 
 flutter_launcher_icons:
   android: true

@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import '../core/component_icons.dart';
 import '../core/models.dart';
 import '../core/units.dart';
-import '../painters/schematic_painter.dart';
 import 'schematic_fullscreen_screen.dart';
 
 /// ASME B31.4 liquid transport pipeline MAOP calculator. Reuses the same
@@ -264,22 +264,19 @@ class _PipelineScreenState extends State<PipelineScreen> {
             const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('CROSS-SECTION ENGINEERING BLUEPRINT', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF8E8E93), letterSpacing: 0.6)),
+                Text('PRODUCT REFERENCE PHOTO', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF8E8E93), letterSpacing: 0.6)),
                 Row(
                   children: [
                     Icon(CupertinoIcons.zoom_in, size: 13, color: Color(0xFFFF9F0A)),
                     SizedBox(width: 4),
-                    Text('CAD VECTOR', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFFF9F0A))),
+                    Text('PHOTO', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFFF9F0A))),
                   ],
                 ),
               ],
             ),
             Expanded(
               child: Center(
-                child: CustomPaint(
-                  size: const Size(260, 150),
-                  painter: VectorBlueprintPainter(category: ComponentCategory.pipelineTransport, data: item, subType: _schedule, accentColor: const Color(0xFFFF453A)),
-                ),
+                child: Image.asset(resolveIconAsset(ComponentCategory.pipelineTransport), fit: BoxFit.contain),
               ),
             ),
           ],
