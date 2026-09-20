@@ -5,6 +5,25 @@ All notable changes to Piping Data Pro are logged here. Dates are UTC.
 ## Unreleased
 
 ### Changed
+- **Valve schematics replaced with real reference photos.** After several
+  rounds of trying to improve the procedurally-drawn valve body (bowtie
+  shapes → faceted casting silhouette → real-yoke elevation), the app owner
+  assessed that none of it read as a professional engineering illustration.
+  Rather than keep iterating on drawing code blind, the 4 valve types (Gate,
+  Globe, Ball, Swing Check) now show a real product reference photo
+  (AI-generated, background removed, size/class-specific markings blurred
+  out since one photo represents every size+class combination) instead of
+  the CustomPainter drawing. The actual per-size/class dimensions the user
+  selects are unaffected — those still come from PipingMasterCatalog and
+  show in the Dimensions/Rating/Bolting tabs exactly as before; only the
+  picture changed. Every other category (pipes, flanges, fittings, branch
+  outlets) still uses the procedural painter.
+  - `lib/core/valve_icons.dart`: valve-type → asset path map.
+  - `assets/images/valves/*.png`: the four reference images.
+  - `category_detail_screen.dart`, `schematic_fullscreen_screen.dart`: show
+    `Image.asset` for valves, the painter for everything else.
+
+### Changed
 - **Schematics redesigned to read like real engineering drawings**, per a
   reference (PIPEDATA) screenshot: proportional cross-sections with
   telescoping dimension lines, instead of decorative shapes with a single
