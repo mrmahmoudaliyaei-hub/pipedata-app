@@ -433,16 +433,10 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'PRODUCT REFERENCE PHOTO',
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF8E8E93), letterSpacing: 0.6),
+                  'Product reference photo',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF8E8E93)),
                 ),
-                Row(
-                  children: [
-                    Icon(CupertinoIcons.zoom_in, size: 13, color: c),
-                    const SizedBox(width: 4),
-                    Text('PHOTO', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: c)),
-                  ],
-                ),
+                Icon(CupertinoIcons.zoom_in, size: 15, color: c),
               ],
             ),
             Expanded(

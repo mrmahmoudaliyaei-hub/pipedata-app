@@ -85,11 +85,11 @@ class _PipelineScreenState extends State<PipelineScreen> {
               ],
             ),
             const SizedBox(height: 10),
-            _sectionLabel('LINE PIPE SIZE'),
+            _sectionLabel('Line pipe size'),
             _buildSizeChips(),
-            _sectionLabel('WALL SCHEDULE'),
+            _sectionLabel('Wall schedule'),
             _buildScheduleChips(item),
-            _sectionLabel('LINE PIPE GRADE (API 5L)'),
+            _sectionLabel('Line pipe grade (API 5L)'),
             _buildGradeChips(),
             const SizedBox(height: 8),
             _buildSchematicCard(item),
@@ -148,7 +148,7 @@ class _PipelineScreenState extends State<PipelineScreen> {
   Widget _sectionLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(top: 10, bottom: 4),
-      child: Text(text, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF8E8E93), letterSpacing: 0.6)),
+      child: Text(text, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFFAEAEB2))),
     );
   }
 
@@ -264,14 +264,8 @@ class _PipelineScreenState extends State<PipelineScreen> {
             const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('PRODUCT REFERENCE PHOTO', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF8E8E93), letterSpacing: 0.6)),
-                Row(
-                  children: [
-                    Icon(CupertinoIcons.zoom_in, size: 13, color: Color(0xFFFF9F0A)),
-                    SizedBox(width: 4),
-                    Text('PHOTO', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFFF9F0A))),
-                  ],
-                ),
+                Text('Product reference photo', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF8E8E93))),
+                Icon(CupertinoIcons.zoom_in, size: 15, color: Color(0xFF2E7DF7)),
               ],
             ),
             Expanded(

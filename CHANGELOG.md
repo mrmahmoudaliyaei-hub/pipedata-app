@@ -5,6 +5,23 @@ All notable changes to Piping Data Pro are logged here. Dates are UTC.
 ## Unreleased
 
 ### Changed
+- **Home screen redesigned: grouped list instead of a card grid.** The
+  previous layout — identical rounded cards with a gradient icon badge and
+  soft shadow, arranged in a 2-column grid under ALL-CAPS section labels —
+  is exactly the generic "SaaS-card kit" pattern that reads as templated
+  rather than deliberate. Replaced with a grouped full-width list (the
+  convention most professional reference/utility apps actually use, e.g.
+  iOS Settings): one shared rounded container per group, hairline dividers
+  between rows, sentence-case section headers, no per-row shadow or
+  gradient. Search results use the same list style. `CategoryCard`
+  (the old card widget) is deleted; `CategoryRow` replaces it.
+- Removed the remaining ALL-CAPS "eyebrow" labels this pass didn't already
+  catch: the schematic card's "PRODUCT REFERENCE PHOTO / PHOTO" chrome and
+  Pipeline (Transport)'s section labels, now sentence case throughout.
+- pipeline_screen.dart: the schematic-card zoom icon's leftover orange
+  accent recolored to match the dark-blue palette (missed in the previous
+  color pass, which only caught the red accents).
+
 - **Reverted the flange/gasket bore-darkening from the previous update** —
   the app owner found the dark-hole treatment looked worse, not better, so
   both are back to how they looked before that change.
