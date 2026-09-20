@@ -5,6 +5,23 @@ All notable changes to Piping Data Pro are logged here. Dates are UTC.
 ## Unreleased
 
 ### Changed
+- **Replaced unrelated category icons with ones that actually match the
+  part.** Weldolets used a hammer, Sockolets a wrench, Threadolets a plain
+  square — none of them relate to what those parts are. Verified every
+  new icon name against Flutter's own CupertinoIcons source before using
+  it (no local Flutter SDK in this environment to compile-check against,
+  so this was checked by hand rather than assumed):
+  - Elbows: compass → `arrow_turn_left_up` (an actual bend/turn shape)
+  - Tees: grid → `share` (a branching-node glyph, fits a 3-way split)
+  - Caps: checkmark_seal → `lock_fill` (a sealed/closed end)
+  - Socket-Weld: gear_alt → `link_circle`
+  - Weldolets: hammer → `link`
+  - Sockolets: wrench → `arrow_up_right` (an outlet branching off the run)
+  - Threadolets: square → `rotate_right_fill` (rotation reads as
+    threading — the most direct fit of this whole batch)
+  Pipe, Reducer, Flange, Gasket, Valve, and Pipeline Transport already
+  had reasonable icons and were left alone.
+
 - **Finished the dark-blue accent sweep** flagged as a follow-up in the
   previous pass: the favorites star (was gold `#FFD60A`), MAWP/ambient-
   pressure highlights (was green `#30D158`), the Pipeline MAOP note (was
