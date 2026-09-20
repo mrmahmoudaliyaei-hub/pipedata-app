@@ -26,6 +26,7 @@ Map<String, String> buildDimensionRows({
       d['Wall Thickness (t)'] = unitsController.format(s['thk'] as num);
       d['Inside Diameter (ID)'] = unitsController.format(s['id'] as num);
       d['Linear Weight'] = '${s['wt']} kg/m';
+      d['Standard'] = 'ASME B36.10M (dimensions also conform to API 5L line pipe)';
       break;
     case ComponentCategory.flange:
       final clss = item['classes'] as Map<String, dynamic>;

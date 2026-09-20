@@ -67,7 +67,7 @@ class CategoryRegistry {
     CategoryMeta(
       category: ComponentCategory.pipe,
       label: 'Pipes',
-      standard: 'ASME B36.10M',
+      standard: 'ASME B36.10M / API 5L',
       icon: CupertinoIcons.smallcircle_circle,
       color: _blue,
       subOptionKind: SubOptionKind.schedules,
