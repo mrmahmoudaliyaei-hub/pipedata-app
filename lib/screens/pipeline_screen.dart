@@ -76,9 +76,9 @@ class _PipelineScreenState extends State<PipelineScreen> {
                   ),
                   child: const Row(
                     children: [
-                      Icon(CupertinoIcons.drop, color: Color(0xFFFF453A), size: 12),
+                      Icon(CupertinoIcons.drop, color: Color(0xFF2E7DF7), size: 12),
                       SizedBox(width: 5),
-                      Text('ASME B31.4', style: TextStyle(fontSize: 10, color: Color(0xFFFF453A), fontWeight: FontWeight.bold)),
+                      Text('ASME B31.4', style: TextStyle(fontSize: 10, color: Color(0xFF2E7DF7), fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -98,10 +98,10 @@ class _PipelineScreenState extends State<PipelineScreen> {
               decoration: BoxDecoration(color: const Color(0xFF161618), borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFF2C2C2E))),
               child: Column(
                 children: [
-                  _dataRow('Maximum Allowable Operating Pressure (MAOP)', '${res.maopBar} Bar (${res.maopPsi} PSI)', highlight: const Color(0xFF30D158)),
+                  _dataRow('Maximum Allowable Operating Pressure (MAOP)', '${res.maopBar} Bar (${res.maopPsi} PSI)', highlight: const Color(0xFF5FD1E8)),
                   _dataRow('Hydrostatic Test Pressure (1.25x MAOP)', '${res.hydroTestBar} Bar (${res.hydroTestPsi} PSI)', highlight: const Color(0xFF0A84FF)),
                   _dataRow('SMYS ($_gradeLabelText)', '${res.smysMpa.toStringAsFixed(0)} MPa'),
-                  _dataRow('Design Factor (F)', res.designFactor.toStringAsFixed(2), highlight: const Color(0xFFFF453A)),
+                  _dataRow('Design Factor (F)', res.designFactor.toStringAsFixed(2), highlight: const Color(0xFF2E7DF7)),
                   _dataRow('Outside Diameter (D)', unitsController.format(od)),
                   _dataRow('Nominal Wall Thickness (t)', unitsController.format(thk)),
                 ],
@@ -139,7 +139,7 @@ class _PipelineScreenState extends State<PipelineScreen> {
         ),
         child: Text(
           unitsController.value == LengthUnit.mm ? 'mm' : 'in',
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFFF453A)),
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF2E7DF7)),
         ),
       ),
     );
@@ -202,7 +202,7 @@ class _PipelineScreenState extends State<PipelineScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 14),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: isSel ? const Color(0xFFFF453A) : const Color(0xFF2C2C2E),
+                color: isSel ? const Color(0xFF2E7DF7) : const Color(0xFF2C2C2E),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(opts[i], style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: isSel ? CupertinoColors.white : const Color(0xFF8E8E93))),
@@ -229,7 +229,7 @@ class _PipelineScreenState extends State<PipelineScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 14),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: isSel ? const Color(0xFFFF453A) : const Color(0xFF2C2C2E),
+                color: isSel ? const Color(0xFF2E7DF7) : const Color(0xFF2C2C2E),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(_gradeLabels[grade]!, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: isSel ? CupertinoColors.white : const Color(0xFF8E8E93))),
@@ -247,7 +247,7 @@ class _PipelineScreenState extends State<PipelineScreen> {
           category: ComponentCategory.pipelineTransport,
           data: item,
           subType: _schedule,
-          accentColor: const Color(0xFFFF453A),
+          accentColor: const Color(0xFF2E7DF7),
           title: 'Pipeline (Transport)',
         ),
       )),

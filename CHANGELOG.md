@@ -5,6 +5,25 @@ All notable changes to Piping Data Pro are logged here. Dates are UTC.
 ## Unreleased
 
 ### Changed
+- **Reverted the flange/gasket bore-darkening from the previous update** —
+  the app owner found the dark-hole treatment looked worse, not better, so
+  both are back to how they looked before that change.
+- **App icon replaced** — the old hand-drawn flat 2D icon is gone; the new
+  one is the real weld-neck flange product photo composited onto a dark
+  navy gradient with a soft glow and drop shadow for actual depth, instead
+  of another from-scratch illustration attempt.
+- **Accent color palette redone as a single dark-blue family** — every
+  category still gets its own distinct shade (so cards remain visually
+  distinct), but all colors now live within the blue spectrum instead of
+  a multicolor rainbow. `pipeline_screen.dart`'s hardcoded red accents
+  updated to match. (Broader sweep of every remaining non-blue accent in
+  the app — e.g. the favorites star, a couple of Rating-tab highlight
+  colors — not done in this pass; flagged for a follow-up.)
+- **Home screen category grouping reordered and re-split**: now follows
+  pipe → fittings → flanges/gaskets → valves (now its own top-level group,
+  previously buried inside Flanged Components) → branch outlets →
+  small-bore → pipeline transport, instead of the previous ordering.
+
 - **Every category's schematic replaced with a real reference photo** —
   extending the valve-only change below to all 13 remaining categories
   (pipes, flanges, gaskets, reducers, tees, elbows, caps, socket-weld,

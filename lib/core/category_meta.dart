@@ -40,24 +40,28 @@ class CategoryRegistry {
 
   static CategoryMeta of(ComponentCategory c) => _byCategory[c]!;
 
-  // Apple system-palette accents, one per category, chosen so every card on
-  // the home screen reads as a distinct, intentional "brand" rather than a
-  // single repeated blue tint.
-  static const _blue = Color(0xFF0A84FF);
-  static const _teal = Color(0xFF64D2FF);
-  static const _indigo = Color(0xFF5E5CE6);
-  static const _mint = Color(0xFF63E6E2);
-  static const _orange = Color(0xFFFF9F0A);
-  static const _purple = Color(0xFFBF5AF2);
-  static const _pink = Color(0xFFFF375F);
-  static const _red = Color(0xFFFF453A);
-  static const _yellow = Color(0xFFFFD60A);
-  static const _cyan = Color(0xFF6AC4DC);
-  static const _green = Color(0xFF30D158);
-  static const _skyBlue = Color(0xFF409CFF);
+  // Professional dark-blue accent family — every category still gets its
+  // own distinct shade (so cards read as separate, intentional items, not
+  // one repeated color), but all of them now live within the same blue
+  // spectrum instead of a multicolor rainbow, per the requested redesign.
+  // Names kept as-is (not renamed to _navy1/_navy2/...) so every existing
+  // reference below and in pipeline_screen.dart's group color didn't need
+  // to change, only what each name actually points to.
+  static const _blue = Color(0xFF2E7DF7); // primary azure
+  static const _teal = Color(0xFF1FA9D6); // teal-blue
+  static const _indigo = Color(0xFF4A5FD1); // indigo-blue
+  static const _mint = Color(0xFF5FD1E8); // pale cyan-blue
+  static const _orange = Color(0xFF3D8EFF); // mid azure (was orange)
+  static const _purple = Color(0xFF5D6BD8); // blue-violet
+  static const _pink = Color(0xFF4C82E8); // soft blue (was pink)
+  static const _red = Color(0xFF1E4FA8); // deep navy (was red — Valves)
+  static const _yellow = Color(0xFF6FADF0); // pale azure (was yellow)
+  static const _cyan = Color(0xFF17A2D6); // cyan-blue
+  static const _green = Color(0xFF2AA8C4); // teal-cyan (was green)
+  static const _skyBlue = Color(0xFF4FA0E8);
   // Distinct from _red (Valves) — Pipeline (Transport) used to share _red,
   // which broke the "one accent per category" rule; this is its own accent.
-  static const _crimson = Color(0xFFFF6482);
+  static const _crimson = Color(0xFF17356B); // deep midnight blue (was crimson)
 
   static final List<CategoryMeta> _all = [
     CategoryMeta(
@@ -179,26 +183,33 @@ class CategoryRegistry {
     ),
   ];
 
+  // Ordered to follow how a piping engineer actually thinks through a
+  // system: the pipe itself, then the fittings that route it, then the
+  // bolted connections (flange+gasket), then flow control (valves get
+  // their own top-billed group, not buried inside Flanged Components),
+  // then branch/small-bore work, then the separate pipeline calculator.
   static final List<CategoryGroup> groups = [
-    CategoryGroup('Pipes & Fittings', _blue, [
+    CategoryGroup('Pipe & Fittings', _blue, [
       of(ComponentCategory.pipe),
       of(ComponentCategory.elbow),
       of(ComponentCategory.tee),
-      of(ComponentCategory.cap),
       of(ComponentCategory.reducer),
+      of(ComponentCategory.cap),
     ]),
-    CategoryGroup('Flanged Components', _purple, [
+    CategoryGroup('Flanges & Gaskets', _purple, [
       of(ComponentCategory.flange),
       of(ComponentCategory.gasket),
-      of(ComponentCategory.valve),
     ]),
-    CategoryGroup('Small-Bore Connections', _yellow, [
-      of(ComponentCategory.socketWeld),
+    CategoryGroup('Valves', _red, [
+      of(ComponentCategory.valve),
     ]),
     CategoryGroup('Branch Outlets (MSS SP-97)', _cyan, [
       of(ComponentCategory.weldolet),
       of(ComponentCategory.sockolet),
       of(ComponentCategory.threadolet),
+    ]),
+    CategoryGroup('Small-Bore Connections', _yellow, [
+      of(ComponentCategory.socketWeld),
     ]),
     CategoryGroup('Pipeline Transport', _crimson, [
       of(ComponentCategory.pipelineTransport),
