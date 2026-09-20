@@ -52,7 +52,6 @@ class CategoryRegistry {
   static const _pink = Color(0xFFFF375F);
   static const _red = Color(0xFFFF453A);
   static const _yellow = Color(0xFFFFD60A);
-  static const _brown = Color(0xFFC29764);
   static const _cyan = Color(0xFF6AC4DC);
   static const _green = Color(0xFF30D158);
   static const _skyBlue = Color(0xFF409CFF);
@@ -143,15 +142,6 @@ class CategoryRegistry {
       dataset: () => PipingMasterCatalog.socketWelds,
     ),
     CategoryMeta(
-      category: ComponentCategory.threaded,
-      label: 'Threaded (NPT)',
-      standard: 'ASME B16.11',
-      icon: CupertinoIcons.gear,
-      color: _brown,
-      subOptionKind: SubOptionKind.none,
-      dataset: () => PipingMasterCatalog.threadeds,
-    ),
-    CategoryMeta(
       category: ComponentCategory.weldolet,
       label: 'Weldolets',
       standard: 'MSS SP-97',
@@ -204,7 +194,6 @@ class CategoryRegistry {
     ]),
     CategoryGroup('Small-Bore Connections', _yellow, [
       of(ComponentCategory.socketWeld),
-      of(ComponentCategory.threaded),
     ]),
     CategoryGroup('Branch Outlets (MSS SP-97)', _cyan, [
       of(ComponentCategory.weldolet),
