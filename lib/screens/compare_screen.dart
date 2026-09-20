@@ -89,7 +89,7 @@ class _CompareScreenState extends State<CompareScreen> {
             children: [
               _buildSection('A', _a, const Color(0xFF0A84FF)),
               const SizedBox(height: 18),
-              _buildSection('B', _b, const Color(0xFFFF9F0A)),
+              _buildSection('B', _b, const Color(0xFF5FD1E8)),
             ],
           ),
         ),

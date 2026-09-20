@@ -5,6 +5,20 @@ All notable changes to Piping Data Pro are logged here. Dates are UTC.
 ## Unreleased
 
 ### Changed
+- **Finished the dark-blue accent sweep** flagged as a follow-up in the
+  previous pass: the favorites star (was gold `#FFD60A`), MAWP/ambient-
+  pressure highlights (was green `#30D158`), the Pipeline MAOP note (was
+  red `#FF453A`), the branch-reinforcement formula text and bolting-torque
+  highlight (was orange `#FF9F0A`), and Compare screen's "Item B" accent
+  (was orange, now a distinct lighter blue from Item A's) — all recolored
+  into the same blue family as everything else. Checked the whole `lib/`
+  tree for any remaining non-blue accent color; none left outside
+  `category_meta.dart` itself (which *is* the palette).
+- Checked the Dimensions/Rating/Bolting tabs against the same "generic
+  card" critique that prompted the home-screen redesign — they already
+  use one shared rounded container with hairline row dividers, no
+  per-row shadow, so nothing there needed changing.
+
 - **Home screen redesigned: grouped list instead of a card grid.** The
   previous layout — identical rounded cards with a gradient icon badge and
   soft shadow, arranged in a 2-column grid under ALL-CAPS section labels —

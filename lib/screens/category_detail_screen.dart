@@ -241,7 +241,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
               onTap: () => favoritesController.toggle(entry),
               child: Icon(
                 isFav ? CupertinoIcons.star_fill : CupertinoIcons.star,
-                color: isFav ? const Color(0xFFFFD60A) : const Color(0xFF8E8E93),
+                color: isFav ? const Color(0xFF5FD1E8) : const Color(0xFF8E8E93),
                 size: 20,
               ),
             );
@@ -501,7 +501,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
             _materialChips(),
             const SizedBox(height: 8),
             _card([
-              _dataRow('Allowable Working Pressure (MAWP)', '${res.mawpBar} Bar (${res.mawpPsi} PSI)', highlight: const Color(0xFF30D158)),
+              _dataRow('Allowable Working Pressure (MAWP)', '${res.mawpBar} Bar (${res.mawpPsi} PSI)', highlight: const Color(0xFF3D8EFF)),
               _dataRow('ASME Hydrostatic Test Pressure (1.5x)', '${res.hydroTestBar} Bar (${res.hydroTestPsi} PSI)', highlight: const Color(0xFF0A84FF)),
               _dataRow('Allowable Stress (S @ 38°C)', '${res.allowableStressMpa} MPa'),
               _dataRow('Mill Under-Tolerance (-12.5%)', unitsController.format(thk * 0.125)),
@@ -514,13 +514,13 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
       // Same unreachable-via-this-screen note as in _buildDimensionsTab above.
       case ComponentCategory.pipelineTransport:
         return _card([
-          _dataRow('Design Factor & MAOP', 'See the Pipeline calculator', highlight: const Color(0xFFFF453A)),
+          _dataRow('Design Factor & MAOP', 'See the Pipeline calculator', highlight: const Color(0xFF17356B)),
         ]);
 
       case ComponentCategory.flange:
         final pRatings = PipingStressEngine.getFlangePressureContainment(_subSelection);
         return _card([
-          _dataRow('Ambient Working Pressure (-29 to 38°C)', '${pRatings['ambient']} Bar', highlight: const Color(0xFF30D158)),
+          _dataRow('Ambient Working Pressure (-29 to 38°C)', '${pRatings['ambient']} Bar', highlight: const Color(0xFF3D8EFF)),
           _dataRow('High-Temp Rating @ 100°C', '${pRatings['t100']} Bar'),
           _dataRow('High-Temp Rating @ 200°C', '${pRatings['t200']} Bar'),
           _dataRow('High-Temp Rating @ 300°C', '${pRatings['t300']} Bar'),
@@ -533,7 +533,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
         final matchClass = _subSelection.isNotEmpty ? _subSelection : 'Class 150';
         final pRatings = PipingStressEngine.getFlangePressureContainment(matchClass);
         return _card([
-          _dataRow('Ambient Working Pressure (-29 to 38°C)', '${pRatings['ambient']} Bar', highlight: const Color(0xFF30D158)),
+          _dataRow('Ambient Working Pressure (-29 to 38°C)', '${pRatings['ambient']} Bar', highlight: const Color(0xFF3D8EFF)),
           _dataRow('High-Temp Rating @ 200°C', '${pRatings['t200']} Bar'),
           _dataRow('High-Temp Rating @ 400°C', '${pRatings['t400']} Bar'),
           _dataRow('Hydrostatic Shell Test (1.5x)', '${pRatings['hydroShell']} Bar', highlight: const Color(0xFF0A84FF)),
@@ -578,7 +578,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
             decoration: BoxDecoration(color: const Color(0xFF0E0E10), borderRadius: BorderRadius.circular(8)),
             child: const Text(
               'A1 = d1 · th\nA2 + A3 + A4  ≥  A1',
-              style: TextStyle(color: Color(0xFFFF9F0A), fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'monospace', height: 1.5),
+              style: TextStyle(color: Color(0xFF6FADF0), fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'monospace', height: 1.5),
             ),
           ),
           const SizedBox(height: 8),
@@ -613,7 +613,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
         _dataRow('Bolt Stud Diameter', '${flg['boltSize']} UNC'),
         _dataRow('Stud Bolt Quantity', '${flg['bolts']} Studs'),
         _dataRow('Recommended Stud Length', unitsController.format(flg['studLen'] as num)),
-        _dataRow('Recommended Tightening Torque', '${flg['torqueNm']} N·m (${(flg['torqueNm'] * 0.7375).toStringAsFixed(0)} ft-lb)', highlight: const Color(0xFFFF9F0A)),
+        _dataRow('Recommended Tightening Torque', '${flg['torqueNm']} N·m (${(flg['torqueNm'] * 0.7375).toStringAsFixed(0)} ft-lb)', highlight: const Color(0xFF6FADF0)),
         _dataRow('Gasket Standard', 'ASME B16.20 Spiral Wound (316L/Graphite)'),
       ]);
     }
